@@ -1,0 +1,24 @@
+# Có phải bắt buộc thưởng Tết? Tiền lương làm thêm giờ ngày lễ, Tết được tính thế nào?
+
+**Source:** https://xaydungchinhsach.chinhphu.vn/co-phai-bat-buoc-thuong-tet-tien-luong-lam-them-gio-ngay-le-tet-duoc-tinh-the-nao-119240201145549.htm
+**Crawled:** 2026-08-04T03:40:21.380484Z
+
+---
+
+Thưởng Tết không phải là khoản bắt buộc
+
+Theo Bộ Lao động - Thương binh và Xã hội, sau mỗi năm làm việc và cống hiến, khoản thưởng Tết cuối năm luôn được người lao động mong ngóng. Hiện nay, các doanh nghiệp đã công bố mức lương, thưởng cho người lao động trong dịp Tết Nguyên đán 2024.
+
+Tuy nhiên, các quy định pháp luật hiện hành này không quy định về trách nhiệm thưởng Tết. Việc thưởng Tết hay không tùy thuộc vào quy chế thưởng của đơn vị.
+
+Dù vậy, Bộ luật Lao động khuyến khích những thỏa thuận bảo đảm cho người lao động có điều kiện thuận lợi hơn so với quy định của pháp luật về lao động.
+
+Trong điều kiện cho phép doanh nghiệp có thể cân nhắc có thêm khoản thưởng Tết để tri ân sự cống hiến cũng như hỗ trợ một phần khó khăn cho người lao động khi mất việc vào thời điểm cận Tết.
+
+Tiền lương làm thêm giờ ngày lễ, Tết được tính thế nào?
+
+Theo quy định tại điểm a khoản 2 Điều 107 Bộ luật Lao động 2019 và khoản 1 Điều 59 Nghị định 145/2020/NĐ-CP, doanh nghiệp muốn sử dụng người lao động làm thêm giờ vào ngày Tết phải được sự đồng ý của người lao động (trừ một số trường hợp công ty được điều động làm thêm giờ mà không cần người lao động đồng ý quy định tại Điều 108 Bộ luật Lao động 2019).
+
+Về mức lương làm thêm giờ, theo quy định tại Điều 98 Bộ luật Lao động 2019, người lao động làm thêm dịp Tết Nguyên đán vào ban ngày được trả ít nhất bằng 300% chưa kể tiền lương ngày lễ đối với người lao động hưởng lương ngày (tổng cộng là 400%).
+
+Phần tiền làm thêm của người lao động được miễn thuế thu nhập cá nhân.
