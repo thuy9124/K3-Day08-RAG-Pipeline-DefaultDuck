@@ -1,61 +1,96 @@
-"""Task 6 — sparse lexical retrieval với BM25 cho văn bản tiếng Việt."""
-from __future__ import annotations
+"""
+Task 6 — Lexical Search Module (BM25).
 
-import re
-from functools import lru_cache
-from typing import Any
+Mặc định sử dụng BM25. Nếu dùng phương pháp khác (TF-IDF, Elasticsearch,
+Weaviate BM25 built-in), hãy giải thích cơ chế trong buổi demo → +5 bonus.
 
+Cài đặt:
+    pip install rank-bm25
+
+BM25 hoạt động thế nào:
+    - Term Frequency (TF): từ xuất hiện nhiều trong document → điểm cao
+    - Inverse Document Frequency (IDF): từ hiếm → quan trọng hơn
+    - Document length normalization: document dài không bị ưu tiên quá mức
+    - Formula: score(q,d) = Σ IDF(qi) * (tf(qi,d) * (k1+1)) / (tf(qi,d) + k1*(1-b+b*|d|/avgdl))
+    - k1=1.5 (term saturation), b=0.75 (length normalization)
+"""
+
+from pathlib import Path
+import chromadb
 import numpy as np
 from rank_bm25 import BM25Okapi
 
-from .task4_chunking_indexing import chunk_documents, load_documents
+CHROMA_DIR = Path(__file__).parent.parent / "chroma_db"
+COLLECTION_NAME = "university_services_docs"
 
-TOKEN_PATTERN = re.compile(r"[^\W_]+", re.UNICODE)
+# TODO: Load corpus từ data/standardized/ hoặc từ vector store
+CORPUS: list[dict] = []  # List of {'content': str, 'metadata': dict}
+_bm25 = None
 
-
-def tokenize(text: str) -> list[str]:
-    """Tokenize Unicode đơn giản, giữ từ có dấu và số điều/khoản."""
-    return TOKEN_PATTERN.findall(text.casefold())
-
-
-def build_bm25_index(corpus: list[dict[str, Any]]) -> BM25Okapi:
-    """Xây BM25Okapi từ corpus chunk; corpus rỗng là lỗi cấu hình rõ ràng."""
-    if not corpus:
-        raise ValueError("Corpus BM25 rỗng")
-    return BM25Okapi([tokenize(document["content"]) for document in corpus], k1=1.5, b=0.75)
-
-
-@lru_cache(maxsize=1)
-def _get_index() -> tuple[list[dict[str, Any]], BM25Okapi]:
-    corpus = chunk_documents(load_documents())
-    return corpus, build_bm25_index(corpus)
-
-
-def refresh_index() -> None:
-    """Xóa cache BM25 sau khi corpus standardized thay đổi."""
-    _get_index.cache_clear()
+def get_corpus():
+    global CORPUS
+    if not CORPUS:
+        try:
+            client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+            collection = client.get_collection(name=COLLECTION_NAME)
+            results = collection.get(include=["documents", "metadatas"])
+            if results and results.get("documents"):
+                for doc, meta in zip(results["documents"], results["metadatas"]):
+                    CORPUS.append({"content": doc, "metadata": meta})
+        except Exception:
+            pass
+    return CORPUS
 
 
-def lexical_search(query: str, top_k: int = 10) -> list[dict[str, Any]]:
-    """Trả các chunk có BM25 score dương, sắp xếp giảm dần."""
-    tokens = tokenize(query)
-    if not tokens or top_k <= 0:
-        return []
-    try:
-        corpus, bm25 = _get_index()
-    except ValueError:
-        return []
-    scores = bm25.get_scores(tokens)
-    top_indices = np.argsort(scores)[::-1][:top_k]
-    results = [
-        {
-            "content": corpus[int(index)]["content"],
-            "score": float(scores[index]),
-            "metadata": corpus[int(index)]["metadata"],
+def build_bm25_index(corpus: list[dict]):
+    """
+    Xây dựng BM25 index từ corpus.
+
+    Args:
+        corpus: List of {'content': str, 'metadata': dict}
+    """
+    tokenized_corpus = [doc["content"].lower().split() for doc in corpus]
+    bm25 = BM25Okapi(tokenized_corpus)
+    return bm25
+
+
+def lexical_search(query: str, top_k: int = 10) -> list[dict]:
+    """
+    Tìm kiếm từ khóa sử dụng BM25.
+
+    Args:
+        query: Câu truy vấn
+        top_k: Số lượng kết quả tối đa
+
+    Returns:
+        List of {
+            'content': str,
+            'score': float,      # BM25 score
+            'metadata': dict
         }
-        for index in top_indices
-        if scores[index] > 0
-    ]
+        Sorted by score descending.
+    """
+    global _bm25
+    corpus = get_corpus()
+    if not corpus:
+        return []
+
+    if _bm25 is None:
+        _bm25 = build_bm25_index(corpus)
+
+    tokenized_query = query.lower().split()
+    scores = _bm25.get_scores(tokenized_query)
+
+    top_indices = np.argsort(scores)[::-1][:top_k]
+
+    results = []
+    for idx in top_indices:
+        if scores[idx] > 0:
+            results.append({
+                "content": corpus[idx]["content"],
+                "score": float(scores[idx]),
+                "metadata": corpus[idx]["metadata"]
+            })
     return results
 
 

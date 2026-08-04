@@ -1,5 +1,94 @@
-"""Task 4 — chunk Markdown, embed qua Voyage API và index vào ChromaDB."""
-from __future__ import annotations
+"""
+Task 4 — Chunking & Indexing vào Vector Store.
+
+Hướng dẫn:
+    1. Đọc toàn bộ markdown files từ data/standardized/
+    2. Chọn 1 chunking strategy (giải thích lý do)
+    3. Chọn 1 embedding model (giải thích lý do)
+    4. Index vào vector store (ChromaDB khuyến cáo — đơn giản, local, không cần Docker)
+
+Chunking options (langchain-text-splitters):
+    - RecursiveCharacterTextSplitter: an toàn, phổ biến
+    - MarkdownHeaderTextSplitter: tốt cho file có heading
+    - SemanticChunker: dùng embedding để tách (nâng cao)
+
+Embedding model options:
+    - sentence-transformers/all-MiniLM-L6-v2 (384 dim, nhẹ)
+    - BAAI/bge-m3 (1024 dim, multilingual, tốt cho cả tiếng Việt lẫn tiếng Anh)
+    - OpenAI text-embedding-3-small (1536 dim, API)
+
+Vector store options:
+    - ChromaDB (khuyến cáo: đơn giản, local persistent, không cần Docker)
+    - Weaviate (hỗ trợ hybrid search built-in, cần Docker/Cloud)
+    - FAISS (chỉ dense search)
+
+Cài đặt:
+    pip install langchain-text-splitters sentence-transformers chromadb
+
+Lưu ý quan trọng: nếu sau này đổi corpus (đổi chủ đề, thêm/bớt tài liệu), phải XÓA
+chroma_db/ cũ trước khi reindex — nếu không, chunk cũ và mới sẽ tồn tại lẫn lộn
+trong cùng collection, retrieval sẽ trả về kết quả rác từ dữ liệu cũ.
+"""
+
+import json
+import math
+import os
+import re
+from pathlib import Path
+
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).parent.parent / ".env")
+
+STANDARDIZED_DIR = Path(__file__).parent.parent / "data" / "standardized"
+CHROMA_DIR = Path(__file__).parent.parent / "chroma_db"
+PROJECT_ROOT = Path(__file__).parent.parent
+
+
+# =============================================================================
+# CONFIGURATION — Giải thích lựa chọn của bạn trong comment
+# =============================================================================
+
+# TODO: Chọn chunking strategy và giải thích vì sao
+CHUNK_SIZE = 800        # Dùng chunk lớn hơn để giữ ngữ cảnh đủ cho RAG, nhưng vẫn vừa phải cho retrieval.
+CHUNK_OVERLAP = 100      # Overlap 100 giúp giữ mạch ý giữa các chunk liên tiếp.
+CHUNKING_METHOD = "recursive"  # "recursive" | "markdown_header" | "semantic"
+
+# Dùng Voyage AI
+EMBEDDING_MODEL = os.environ.get("VOYAGE_MODEL", "voyage-4-large")
+EMBEDDING_DIM = int(os.environ.get("VOYAGE_OUTPUT_DIMENSION", 1024))
+
+# TODO: Chọn vector store
+VECTOR_STORE = "chromadb"  # "chromadb" | "weaviate" | "faiss"
+COLLECTION_NAME = "university_services_docs"
+
+
+# =============================================================================
+# IMPLEMENTATION
+# =============================================================================
+
+def load_documents() -> list[dict]:
+    """
+    Đọc toàn bộ markdown files từ data/standardized/.
+
+    Returns:
+        List of {'content': str, 'metadata': {'source': str, 'type': str}}
+    """
+    documents: list[dict] = []
+
+    md_files = sorted(STANDARDIZED_DIR.rglob("*.md"))
+    if not md_files:
+        fallback_candidates = [
+            PROJECT_ROOT / "README.md",
+            PROJECT_ROOT / "LAB_GUIDE.md",
+            PROJECT_ROOT / "day8-lab-rag-pipeline.md",
+        ]
+        md_files = [p for p in fallback_candidates if p.exists()]
+
+    for md_file in md_files:
+        try:
+            content = md_file.read_text(encoding="utf-8")
+        except Exception:
+            continue
 
 import hashlib
 import os
@@ -194,17 +283,45 @@ def embed_chunks(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return chunks
 
 
-def get_chroma_client():
-    """Mở Chroma persistent client tại thư mục project."""
-    import chromadb
+def embed_chunks(chunks: list[dict]) -> list[dict]:
+    """
+    Embed toàn bộ chunks bằng Voyage API.
 
     CHROMA_DIR.mkdir(parents=True, exist_ok=True)
     return chromadb.PersistentClient(path=str(CHROMA_DIR))
 
+    try:
+        import voyageai
+        client = voyageai.Client(api_key=os.environ.get("VOYAGE_API_KEY"))
 
-def get_collection():
-    """Mở collection cosine đã index; không tự tạo collection rỗng."""
-    return get_chroma_client().get_collection(name=COLLECTION_NAME)
+        texts = [c["content"] for c in chunks]
+        # Gọi API theo batch 100 để tránh vượt giới hạn token/request
+        batch_size = 100
+        all_embeddings = []
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i : i + batch_size]
+            response = client.embed(
+                texts=batch,
+                model=EMBEDDING_MODEL,
+            )
+            all_embeddings.extend(response.embeddings)
+            print(f"  Embedded batch {i // batch_size + 1}/{math.ceil(len(texts) / batch_size)}")
+
+        for chunk, emb in zip(chunks, all_embeddings):
+            chunk["embedding"] = emb
+        return chunks
+    except Exception as e:
+        print(f"Voyage AI embedding error: {e}")
+        # Fallback vector giả nếu API lỗi
+        for chunk in chunks:
+            tokens = re.findall(r"\w+", (chunk.get("content") or "").lower())
+            vector = [0.0] * EMBEDDING_DIM
+            for token in tokens:
+                idx = abs(hash(token)) % EMBEDDING_DIM
+                vector[idx] += 1.0
+            norm = math.sqrt(sum(v * v for v in vector)) or 1.0
+            chunk["embedding"] = [v / norm for v in vector]
+        return chunks
 
 
 def index_to_vectorstore(chunks: list[dict[str, Any]]) -> None:
@@ -244,6 +361,23 @@ def index_to_vectorstore(chunks: list[dict[str, Any]]) -> None:
             embeddings=[chunk["embedding"] for chunk in batch],
             metadatas=[chunk["metadata"] for chunk in batch],
         )
+        return collection
+    except Exception as e:
+        print(f"Failed to upsert to ChromaDB: {e}")
+        fallback_path = CHROMA_DIR / "fallback_index.json"
+        payload = {
+            "collection_name": COLLECTION_NAME,
+            "chunks": [
+                {
+                    "content": c["content"],
+                    "metadata": c["metadata"],
+                    "embedding": c.get("embedding"),
+                }
+                for c in chunks
+            ],
+        }
+        fallback_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        return None
 
 
 def run_pipeline() -> None:

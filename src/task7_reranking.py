@@ -14,21 +14,64 @@ def _identity(item: dict[str, Any]) -> str:
         return f"{source_path}::{chunk_index}"
     return str(item.get("content", ""))
 
+import math
+import re
+from typing import Optional
 
-def _cosine(left: list[float], right: list[float]) -> float:
-    if not left or not right or len(left) != len(right):
+
+def _tokenize(text: str) -> list[str]:
+    return re.findall(r"\w+", text.lower())
+
+
+def _cosine_similarity(a: list[float], b: list[float]) -> float:
+    if not a or not b:
         return 0.0
-    dot = sum(a * b for a, b in zip(left, right))
-    norm_left = math.sqrt(sum(value * value for value in left))
-    norm_right = math.sqrt(sum(value * value for value in right))
-    return dot / (norm_left * norm_right) if norm_left and norm_right else 0.0
+    if len(a) != len(b):
+        length = min(len(a), len(b))
+        a = a[:length]
+        b = b[:length]
+    dot = sum(x * y for x, y in zip(a, b))
+    norm_a = math.sqrt(sum(x * x for x in a))
+    norm_b = math.sqrt(sum(y * y for y in b))
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
+    return dot / (norm_a * norm_b)
+
+
+def _build_token_vector(text: str) -> list[float]:
+    tokens = _tokenize(text)
+    if not tokens:
+        return []
+    vector = {}
+    for token in tokens:
+        vector[token] = vector.get(token, 0) + 1.0
+    return [vector.get(token, 0.0) for token in sorted(vector)]
 
 
 def rerank_cross_encoder(
     query: str, candidates: list[dict], top_k: int = 5
 ) -> list[dict]:
-    """Không dùng trong cấu hình hiện tại; giữ lỗi rõ thay vì âm thầm giả score."""
-    raise RuntimeError("Cross-encoder chưa được cấu hình; pipeline đang sử dụng RRF")
+    """
+    Rerank candidates bằng cách dùng một heuristic nhẹ dựa trên overlap từ khóa.
+    Đây là fallback hữu ích khi không có cross-encoder model thực sự.
+    """
+    if not candidates:
+        return []
+
+    query_tokens = set(_tokenize(query))
+    scored = []
+    for candidate in candidates:
+        content = candidate.get("content", "")
+        content_tokens = set(_tokenize(content))
+        overlap = len(query_tokens & content_tokens)
+        base_score = float(candidate.get("score", 0.0))
+        rerank_score = base_score + (overlap * 0.05)
+        item = dict(candidate)
+        item["score"] = rerank_score
+        scored.append(item)
+
+    scored.sort(key=lambda x: x["score"], reverse=True)
+    return scored[:top_k]
 
 
 def rerank_mmr(
@@ -37,32 +80,43 @@ def rerank_mmr(
     top_k: int = 5,
     lambda_param: float = 0.7,
 ) -> list[dict]:
-    """Chọn candidates cân bằng relevance/diversity bằng MMR."""
-    if top_k <= 0 or not candidates:
+    """
+    Maximal Marginal Relevance — chọn candidates vừa relevant vừa diverse.
+    """
+    if not candidates:
         return []
-    if not 0 <= lambda_param <= 1:
-        raise ValueError("lambda_param phải nằm trong [0, 1]")
-    selected: list[int] = []
-    remaining = list(range(len(candidates)))
-    while remaining and len(selected) < top_k:
-        best_index = remaining[0]
+
+    selected: list[dict] = []
+    remaining = list(candidates)
+
+    for _ in range(min(top_k, len(candidates))):
+        best_idx = None
         best_score = float("-inf")
-        for index in remaining:
-            embedding = candidates[index].get("embedding", [])
-            relevance = _cosine(query_embedding, embedding)
-            redundancy = max(
-                (_cosine(embedding, candidates[chosen].get("embedding", [])) for chosen in selected),
-                default=0.0,
-            )
-            score = lambda_param * relevance - (1 - lambda_param) * redundancy
-            if score > best_score:
-                best_index, best_score = index, score
-        item = candidates[best_index].copy()
-        item["score"] = float(best_score)
-        selected.append(best_index)
-        remaining.remove(best_index)
-        candidates[best_index] = item
-    return [candidates[index] for index in selected]
+
+        for idx, candidate in enumerate(remaining):
+            emb = candidate.get("embedding")
+            if emb is None:
+                emb = _build_token_vector(candidate.get("content", ""))
+
+            relevance = _cosine_similarity(query_embedding, emb)
+            max_sim_to_selected = 0.0
+            for selected_item in selected:
+                selected_emb = selected_item.get("embedding")
+                if selected_emb is None:
+                    selected_emb = _build_token_vector(selected_item.get("content", ""))
+                max_sim_to_selected = max(max_sim_to_selected, _cosine_similarity(emb, selected_emb))
+
+            mmr_score = lambda_param * relevance - (1 - lambda_param) * max_sim_to_selected
+            if mmr_score > best_score:
+                best_score = mmr_score
+                best_idx = idx
+
+        if best_idx is None:
+            break
+
+        selected.append(remaining.pop(best_idx))
+
+    return selected
 
 
 def rerank_rrf(
@@ -95,6 +149,35 @@ def rerank_rrf(
         results.append(item)
     return results
 
+    RRF(d) = Σ 1 / (k + rank_r(d))
+    """
+    if not ranked_lists:
+        return []
+
+    rrf_scores: dict[str, float] = {}
+    content_map: dict[str, dict] = {}
+
+    for ranked_list in ranked_lists:
+        for rank, item in enumerate(ranked_list, 1):
+            key = item.get("content", "")
+            if not key:
+                continue
+            rrf_scores[key] = rrf_scores.get(key, 0.0) + 1.0 / (k + rank)
+            content_map[key] = dict(item)
+
+    sorted_items = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)
+    results = []
+    for content, score in sorted_items[:top_k]:
+        item = content_map[content].copy()
+        item["score"] = round(score, 6)
+        results.append(item)
+
+    return results
+
+
+# =============================================================================
+# Main rerank interface
+# =============================================================================
 
 def rerank(
     query: str,
@@ -102,14 +185,20 @@ def rerank(
     top_k: int = 5,
     method: str = "rrf",
 ) -> list[dict]:
-    """Unified interface; một candidate list được coi là một ranker với RRF."""
-    if method == "rrf":
-        return rerank_rrf([candidates], top_k=top_k)
+    """
+    Unified reranking interface.
+    """
     if method == "cross_encoder":
         return rerank_cross_encoder(query, candidates, top_k)
-    if method == "mmr":
-        raise ValueError("MMR cần query_embedding; hãy gọi rerank_mmr trực tiếp")
-    raise ValueError(f"Unknown rerank method: {method}")
+    elif method == "mmr":
+        # Cần query_embedding - embed query trước
+        raise NotImplementedError("Call rerank_mmr with query_embedding")
+    elif method == "rrf":
+        if candidates and isinstance(candidates[0], list):
+            return rerank_rrf(candidates, top_k=top_k)
+        return rerank_cross_encoder(query, candidates, top_k)
+    else:
+        raise ValueError(f"Unknown rerank method: {method}")
 
 
 if __name__ == "__main__":

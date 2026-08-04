@@ -38,41 +38,59 @@ def retrieve(
     top_k: int = DEFAULT_TOP_K,
     score_threshold: float = SCORE_THRESHOLD,
     use_reranking: bool = True,
-) -> list[dict[str, Any]]:
-    """Retrieve và dùng cosine dense gốc—not RRF score—để quyết định fallback."""
-    query = query.strip()
-    if not query or top_k <= 0:
-        return []
-    candidate_k = max(top_k * 2, top_k)
-    if ALLOW_EXTERNAL_APIS:
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            dense_future = executor.submit(semantic_search, query, candidate_k)
-            sparse_future = executor.submit(lexical_search, query, candidate_k)
-            try:
-                dense_results = dense_future.result()
-            except Exception:
-                dense_results = []
-            sparse_results = sparse_future.result()
-    else:
-        # Zero-cost mode: không gọi Voyage query API; BM25 và structural fallback
-        # đều chạy local.
-        dense_results = []
-        sparse_results = lexical_search(query, candidate_k)
+) -> list[dict]:
+    """
+    Retrieval pipeline hoàn chỉnh với fallback logic.
 
-    best_dense_score = dense_results[0]["score"] if dense_results else 0.0
-    if not ALLOW_EXTERNAL_APIS or best_dense_score < score_threshold:
+    Pipeline:
+        Query
+          ├→ Semantic Search → dense_results (giữ điểm cosine gốc)
+          ├→ Lexical Search  → sparse_results
+          │
+          ├→ Merge (RRF) → merged_results
+          ├→ Rerank → reranked_results
+          │
+          └→ If dense_results[0]["score"] < threshold:
+                └→ PageIndex Vectorless → fallback_results
+
+    Args:
+        query: Câu truy vấn
+        top_k: Số lượng kết quả cuối cùng
+        score_threshold: Ngưỡng điểm cosine gốc tối thiểu (KHÔNG phải điểm RRF)
+        use_reranking: Có áp dụng reranking hay không
+
+    Returns:
+        List of {
+            'content': str,
+            'score': float,
+            'metadata': dict,
+            'source': str  # 'hybrid' hoặc 'pageindex'
+        }
+    """
+    # Step 1: Song song chạy semantic + lexical
+    dense_results = semantic_search(query, top_k=top_k * 2)
+    sparse_results = lexical_search(query, top_k=top_k * 2)
+    
+    # Step 2: Merge bằng RRF
+    merged = rerank_rrf([dense_results, sparse_results], top_k=top_k * 2)
+    for item in merged:
+        item["source"] = "hybrid"
+        
+    # Step 3: Rerank
+    if use_reranking and merged:
+        final_results = rerank(query, merged, top_k=top_k, method=RERANK_METHOD)
+    else:
+        final_results = merged[:top_k]
+        
+    # Step 4: Check threshold DÙNG ĐIỂM COSINE GỐC (dense_results)
+    best_score = dense_results[0]["score"] if dense_results else 0.0
+    if best_score < score_threshold:
+        print(f"  ⚠ Semantic best score ({best_score:.3f}) < threshold ({score_threshold})")
         fallback = pageindex_search(query, top_k=top_k)
         if fallback:
             return fallback
-
-    if use_reranking:
-        merged = rerank_rrf([dense_results, sparse_results], top_k=top_k)
-    else:
-        merged = _deduplicate(dense_results + sparse_results, top_k)
-    for item in merged:
-        item["source"] = "hybrid"
-        item["dense_best_score"] = float(best_dense_score)
-    return merged[:top_k]
+            
+    return final_results[:top_k]
 
 
 if __name__ == "__main__":

@@ -37,106 +37,114 @@ def reorder_for_llm(chunks: list[dict]) -> list[dict]:
     back = chunks[1::2]
     return front + back[::-1]
 
+    Returns:
+        List reordered để maximize LLM attention.
+    """
+    if len(chunks) <= 2:
+        return chunks
+        
+    front = chunks[::2]   # index 0, 2, 4 -> đặt ở đầu
+    back = chunks[1::2]   # index 1, 3    -> đặt ở cuối (reversed)
+    return front + back[::-1]
+
+
+# =============================================================================
+# CONTEXT FORMATTING
+# =============================================================================
 
 def format_context(chunks: list[dict]) -> str:
-    """Format context với nhãn nguồn ổn định cho citation."""
-    parts: list[str] = []
-    for index, chunk in enumerate(chunks, 1):
-        metadata = chunk.get("metadata") or {}
-        source = str(metadata.get("source") or f"Source {index}")
-        doc_type = str(metadata.get("type") or "unknown")
-        section = metadata.get("section")
-        label = f"Tài liệu {index} | Nguồn: {source} | Loại: {doc_type}"
-        if section:
-            label += f" | Mục: {section}"
-        parts.append(f"[{label}]\n{str(chunk.get('content', '')).strip()}")
-    return "\n\n---\n\n".join(parts)
+    """
+    Format chunks thành context string cho prompt.
+    Mỗi chunk có label source để LLM có thể cite.
+
+    Args:
+        chunks: List of {'content': str, 'metadata': dict, 'score': float}
+
+    Returns:
+        Formatted context string.
+    """
+    context_parts = []
+    for i, chunk in enumerate(chunks, 1):
+        source = chunk.get("metadata", {}).get("source", f"Source {i}")
+        doc_type = chunk.get("metadata", {}).get("type", "unknown")
+        context_parts.append(
+            f"[Document {i} | Source: {source} | Type: {doc_type}]\n"
+            f"{chunk['content']}\n"
+        )
+    return "\n---\n".join(context_parts)
 
 
-def _source_summaries(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    sources: list[dict[str, Any]] = []
-    seen: set[tuple[str, Any]] = set()
-    for chunk in chunks:
-        metadata = chunk.get("metadata") or {}
-        key = (str(metadata.get("source", "unknown")), metadata.get("chunk_index"))
-        if key in seen:
-            continue
-        seen.add(key)
-        sources.append({
-            "source": key[0],
-            "chunk_index": key[1],
-            "score": float(chunk.get("score", 0.0)),
-            "content": chunk.get("content", ""),
-            "metadata": metadata,
-        })
-    return sources
+# =============================================================================
+# GENERATION
+# =============================================================================
 
+def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
+    """
+    End-to-end RAG generation có citation.
 
-def _extractive_answer(chunks: list[dict[str, Any]]) -> str:
-    """Zero-cost answer: trích đoạn liên quan nhất và gắn citation nguồn."""
-    if not chunks:
-        return NO_EVIDENCE_ANSWER
-    parts: list[str] = []
-    for chunk in chunks[:2]:
-        metadata = chunk.get("metadata") or {}
-        source = str(metadata.get("source") or "Nguồn hiện có")
-        content = str(chunk.get("content", "")).strip()
-        if not content:
-            continue
-        excerpt = content[:700].rsplit(" ", 1)[0].strip()
-        parts.append(f"{excerpt} [{source}]")
-    return "\n\n".join(parts) or NO_EVIDENCE_ANSWER
+    Pipeline:
+        1. Retrieve relevant chunks
+        2. Reorder để tránh lost in the middle
+        3. Format context với source labels
+        4. Build prompt (system + context + query)
+        5. Call LLM
+        6. Return answer + sources
 
+    Args:
+        query: Câu hỏi của user
 
-def generate_with_citation(query: str, top_k: int = TOP_K) -> dict[str, Any]:
-    """Retrieve, reorder và gọi OpenRouter; degrade an toàn khi thiếu evidence/API."""
-    query = query.strip()
-    if not query:
-        return {"answer": NO_EVIDENCE_ANSWER, "sources": [], "retrieval_source": "none"}
-    chunks = retrieve(query, top_k=top_k)
-    retrieval_source = chunks[0].get("source", "hybrid") if chunks else "none"
-    sources = _source_summaries(chunks)
-    if not chunks:
-        return {"answer": NO_EVIDENCE_ANSWER, "sources": sources, "retrieval_source": retrieval_source}
-
-    if not ALLOW_EXTERNAL_APIS:
-        return {
-            "answer": _extractive_answer(chunks),
-            "sources": sources,
-            "retrieval_source": retrieval_source,
-            "generation_mode": "local_extractive",
+    Returns:
+        {
+            'answer': str,           # Câu trả lời có citation
+            'sources': list[dict],   # Các chunks đã dùng
+            'retrieval_source': str  # 'hybrid' hoặc 'pageindex'
         }
-
-    context = format_context(reorder_for_llm(chunks))
-    api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
+    """
+    # Step 1: Retrieve
+    chunks = retrieve(query, top_k=top_k)
+    
+    # Step 2: Reorder
+    reordered = reorder_for_llm(chunks)
+    
+    # Step 3: Format context
+    context = format_context(reordered)
+    
+    # Step 4: Build prompt
+    user_message = f"Context:\n{context}\n\n---\n\nQuestion: {query}"
+    
+    # Step 5: Call LLM (OpenRouter — OpenAI-compatible API)
+    api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
     if not api_key:
-        return {"answer": NO_EVIDENCE_ANSWER, "sources": sources, "retrieval_source": retrieval_source}
-
-    user_message = f"CONTEXT:\n{context}\n\n---\n\nCÂU HỎI: {query}"
+        return {
+            "answer": "Missing API key for generation.",
+            "sources": chunks,
+            "retrieval_source": chunks[0].get("source", "hybrid") if chunks else "none"
+        }
+    
     try:
         from openai import OpenAI
-
-        client = OpenAI(api_key=api_key, base_url=OPENROUTER_BASE_URL)
+        client = OpenAI(api_key=api_key, base_url="https://openrouter.ai/api/v1")
+        
         response = client.chat.completions.create(
             model=LLM_MODEL,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_message},
+                {"role": "user", "content": user_message}
             ],
             temperature=TEMPERATURE,
             top_p=TOP_P,
-            max_tokens=800,
         )
-        answer = (response.choices[0].message.content or "").strip() or NO_EVIDENCE_ANSWER
-    except Exception as exc:
-        answer = NO_EVIDENCE_ANSWER
-        return {
-            "answer": answer,
-            "sources": sources,
-            "retrieval_source": retrieval_source,
-            "generation_error": f"{type(exc).__name__}: {exc}",
-        }
-    return {"answer": answer, "sources": sources, "retrieval_source": retrieval_source}
+        
+        answer = response.choices[0].message.content
+    except Exception as e:
+        answer = f"Error calling LLM: {e}"
+        
+    # Step 6: Return
+    return {
+        "answer": answer,
+        "sources": chunks,
+        "retrieval_source": chunks[0].get("source", "hybrid") if chunks else "none"
+    }
 
 
 if __name__ == "__main__":
