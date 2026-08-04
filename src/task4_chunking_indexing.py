@@ -32,8 +32,12 @@ trong cùng collection, retrieval sẽ trả về kết quả rác từ dữ li�
 
 import json
 import math
+import os
 import re
 from pathlib import Path
+
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).parent.parent / ".env")
 
 STANDARDIZED_DIR = Path(__file__).parent.parent / "data" / "standardized"
 CHROMA_DIR = Path(__file__).parent.parent / "chroma_db"
@@ -49,9 +53,9 @@ CHUNK_SIZE = 800        # Dùng chunk lớn hơn để giữ ngữ cảnh đủ 
 CHUNK_OVERLAP = 100      # Overlap 100 giúp giữ mạch ý giữa các chunk liên tiếp.
 CHUNKING_METHOD = "recursive"  # "recursive" | "markdown_header" | "semantic"
 
-# TODO: Chọn embedding model và giải thích
-EMBEDDING_MODEL = "BAAI/bge-m3"  # Vì sao? Multilingual, tốt cho tiếng Việt lẫn tiếng Anh
-EMBEDDING_DIM = 1024
+# Dùng Voyage AI
+EMBEDDING_MODEL = os.environ.get("VOYAGE_MODEL", "voyage-4-large")
+EMBEDDING_DIM = int(os.environ.get("VOYAGE_OUTPUT_DIMENSION", 1024))
 
 # TODO: Chọn vector store
 VECTOR_STORE = "chromadb"  # "chromadb" | "weaviate" | "faiss"
@@ -195,7 +199,7 @@ def chunk_documents(documents: list[dict]) -> list[dict]:
 
 def embed_chunks(chunks: list[dict]) -> list[dict]:
     """
-    Embed toàn bộ chunks bằng model đã chọn.
+    Embed toàn bộ chunks bằng Voyage API.
 
     Returns:
         Mỗi chunk dict được thêm key 'embedding': list[float]
@@ -204,21 +208,33 @@ def embed_chunks(chunks: list[dict]) -> list[dict]:
         return chunks
 
     try:
-        from sentence_transformers import SentenceTransformer
+        import voyageai
+        client = voyageai.Client(api_key=os.environ.get("VOYAGE_API_KEY"))
 
-        model = SentenceTransformer(EMBEDDING_MODEL)
         texts = [c["content"] for c in chunks]
-        embeddings = model.encode(texts, normalize_embeddings=True)
-        for chunk, emb in zip(chunks, embeddings):
-            chunk["embedding"] = emb.tolist()
+        # Gọi API theo batch 100 để tránh vượt giới hạn token/request
+        batch_size = 100
+        all_embeddings = []
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i : i + batch_size]
+            response = client.embed(
+                texts=batch,
+                model=EMBEDDING_MODEL,
+            )
+            all_embeddings.extend(response.embeddings)
+            print(f"  Embedded batch {i // batch_size + 1}/{math.ceil(len(texts) / batch_size)}")
+
+        for chunk, emb in zip(chunks, all_embeddings):
+            chunk["embedding"] = emb
         return chunks
-    except Exception:
-        # Fallback nhẹ nếu model không cài đặt / không tải được.
+    except Exception as e:
+        print(f"Voyage AI embedding error: {e}")
+        # Fallback vector giả nếu API lỗi
         for chunk in chunks:
             tokens = re.findall(r"\w+", (chunk.get("content") or "").lower())
-            vector = [0.0] * 64
+            vector = [0.0] * EMBEDDING_DIM
             for token in tokens:
-                idx = abs(hash(token)) % 64
+                idx = abs(hash(token)) % EMBEDDING_DIM
                 vector[idx] += 1.0
             norm = math.sqrt(sum(v * v for v in vector)) or 1.0
             chunk["embedding"] = [v / norm for v in vector]
@@ -254,7 +270,8 @@ def index_to_vectorstore(chunks: list[dict]):
             metadatas=[c["metadata"] for c in chunks],
         )
         return collection
-    except Exception:
+    except Exception as e:
+        print(f"Failed to upsert to ChromaDB: {e}")
         fallback_path = CHROMA_DIR / "fallback_index.json"
         payload = {
             "collection_name": COLLECTION_NAME,
