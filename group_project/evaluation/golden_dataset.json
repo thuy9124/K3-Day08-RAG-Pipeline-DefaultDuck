@@ -1,17 +1,78 @@
 [
-  {
-    "question": "Học phí hàng năm của chương trình Business tại RMIT Vietnam là bao nhiêu?",
-    "expected_answer": "Khoảng 375.840.000 VND mỗi năm (tùy chương trình cụ thể).",
-    "expected_context": "Trang Tuition Fees, mục Undergraduate Programs"
-  },
-  {
-    "question": "Học phí được thanh toán theo hình thức nào?",
-    "expected_answer": "Thanh toán theo từng học kỳ, tính theo từng môn học đã đăng ký.",
-    "expected_context": "Trang Tuition Fees, mục Payment Structure"
-  },
-  {
-    "question": "Trường có cung cấp ký túc xá trong khuôn viên không?",
-    "expected_answer": "Không — trường không cung cấp chỗ ở trong khuôn viên, nhưng có đội ngũ hỗ trợ sinh viên tìm chỗ ở gần trường.",
-    "expected_context": "Trang Accommodation Services"
-  }
+{
+"question": "Học phí hàng năm của chương trình Business tại RMIT Vietnam là bao nhiêu?",
+"expected_answer": "Khoảng 375.840.000 VND mỗi năm (tùy chương trình cụ thể).",
+"expected_context": ["Trang Tuition Fees, mục Undergraduate Programs"]
+},
+{
+"question": "Học phí được thanh toán theo hình thức nào?",
+"expected_answer": "Thanh toán theo từng học kỳ, tính theo từng môn học đã đăng ký trực tuyến hoặc chuyển khoản ngân hàng.",
+"expected_context": ["Trang Tuition Fees, mục Payment Structure"]
+},
+{
+"question": "Trường có cung cấp ký túc xá trong khuôn viên không?",
+"expected_answer": "Không — trường không cung cấp chỗ ở trong khuôn viên, nhưng có đội ngũ hỗ trợ sinh viên tìm chỗ ở gần trường.",
+"expected_context": ["Trang Accommodation Services"]
+},
+{
+"question": "Điều kiện xét học bổng khuyến khích học tập dành cho sinh viên là gì?",
+"expected_answer": "Sinh viên cần đạt GPA từ 3.2 trở lên và có điểm rèn luyện từ loại Tốt trở lên.",
+"expected_context": ["Quy định học bổng KKHT, Điều 3"]
+},
+{
+"question": "Hạn chót đăng ký môn học trực tuyến kỳ Hè là ngày nào?",
+"expected_answer": "Hạn chót là 17h00 ngày 15 tháng 5 theo cổng thông tin đào tạo.",
+"expected_context": ["Thông báo đăng ký học phần kỳ Hè"]
+},
+{
+"question": "Sinh viên nộp học phí muộn sau hạn chót chịu mức phạt bao nhiêu?",
+"expected_answer": "Sinh viên đóng học phí muộn chịu phí phạt 5% trên tổng số tiền học phí phải nộp.",
+"expected_context": ["Quy định tài chính & học phí, Mục 4.2"]
+},
+{
+"question": "Quy trình xin rút bớt môn học trong tuần đầu tiên như thế nào?",
+"expected_answer": "Sinh viên nộp đơn online trên hệ thống Student Portal trước 17h00 thứ Sáu tuần 1 để được hoàn 100% học phí.",
+"expected_context": ["Hướng dẫn rút môn học phần"]
+},
+{
+"question": "Số lượng sách tối đa sinh viên được mượn tại thư viện là bao nhiêu quyển?",
+"expected_answer": "Sinh viên đại học được mượn tối đa 10 quyển sách trong thời hạn 14 ngày.",
+"expected_context": ["Quy định Thư viện, Mục Mượn trả tài liệu"]
+},
+{
+"question": "Giờ mở cửa của thư viện trung tâm vào ngày cuối tuần là khi nào?",
+"expected_answer": "Thư viện mở cửa từ 8h00 đến 17h00 vào Thứ Bảy và Chủ Nhật.",
+"expected_context": ["Lịch hoạt động Thư viện"]
+},
+{
+"question": "Sinh viên cần làm thủ tục gì khi bị mất thẻ sinh viên?",
+"expected_answer": "Báo mất tại Phòng Công tác Sinh viên, nộp lệ phí cấp lại thẻ 100.000 VNĐ và nhận thẻ mới sau 3 ngày làm việc.",
+"expected_context": ["Hướng dẫn cấp lại Thẻ sinh viên"]
+},
+{
+"question": "Điều kiện để được miễn giảm học phí cho sinh viên diện chính sách là gì?",
+"expected_answer": "Có giấy xác nhận hộ nghèo/ cận nghèo hoặc con thương binh bệnh binh đúng quy định của Bộ GD&ĐT.",
+"expected_context": ["Chính sách miễn giảm học phí"]
+},
+{
+"question": "Quy định về việc bảo lưu kết quả học tập tối đa trong bao lâu?",
+"expected_answer": "Sinh viên được phép bảo lưu tối đa 2 học kỳ liên tiếp vì lý do cá nhân hoặc sức khỏe.",
+"expected_context": ["Quy chế Đào tạo Đại học, Điều 12"]
+},
+{
+"question": "Quy định xin cấp phép sản xuất nhiên liệu tên lửa hạt nhân tại ký túc xá?",
+"expected_answer": "I cannot verify this information / Không tìm thấy quy định này trong cơ sở dữ liệu dịch vụ đại học.",
+"expected_context": ["OUT_OF_DOMAIN_QUERY_1"]
+},
+{
+"question": "Chính sách đăng ký môn học cho sinh viên du hành thời gian từ tương lai?",
+"expected_answer": "I cannot verify this information / Không tìm thấy thông tin phù hợp.",
+"expected_context": ["OUT_OF_DOMAIN_QUERY_2"]
+},
+{
+"question": "Hướng dẫn bảo dưỡng động cơ phản lực siêu thanh tại phòng đọc thư viện?",
+"expected_answer": "I cannot verify this information / Không có dữ liệu liên quan.",
+"expected_context": ["OUT_OF_DOMAIN_QUERY_3"]
+}
 ]
+
