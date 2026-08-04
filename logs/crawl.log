@@ -1,0 +1,113 @@
+2026-08-04 10:35:35,638 | INFO | Đang kiểm tra robots.txt: https://baochinhphu.vn/robots.txt
+2026-08-04 10:35:41,844 | ERROR | Bỏ qua URL https://baochinhphu.vn/thoi-gian-thu-viec-khong-phai-tham-gia-bhxh-102240122113742016.htm — không tải được robots.txt: HTTPSConnectionPool(host='baochinhphu.vn', port=443): Max retries exceeded with url: /robots.txt (Caused by NewConnectionError("HTTPSConnection(host='baochinhphu.vn', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"))
+2026-08-04 10:35:43,346 | INFO | Đang kiểm tra robots.txt: https://xaydungchinhsach.chinhphu.vn/robots.txt
+2026-08-04 10:35:49,491 | ERROR | Bỏ qua URL https://xaydungchinhsach.chinhphu.vn/co-phai-bat-buoc-thuong-tet-tien-luong-lam-them-gio-ngay-le-tet-duoc-tinh-the-nao-119240201145549.htm — không tải được robots.txt: HTTPSConnectionPool(host='xaydungchinhsach.chinhphu.vn', port=443): Max retries exceeded with url: /robots.txt (Caused by NewConnectionError("HTTPSConnection(host='xaydungchinhsach.chinhphu.vn', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"))
+2026-08-04 10:35:50,997 | INFO | Đang kiểm tra robots.txt: https://baochinhphu.vn/robots.txt
+2026-08-04 10:35:57,159 | ERROR | Bỏ qua URL https://baochinhphu.vn/hieu-the-nao-ve-quy-dinh-tinh-gop-ngay-phep-nam-102240613101442693.htm — không tải được robots.txt: HTTPSConnectionPool(host='baochinhphu.vn', port=443): Max retries exceeded with url: /robots.txt (Caused by NewConnectionError("HTTPSConnection(host='baochinhphu.vn', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"))
+2026-08-04 10:35:58,661 | INFO | Đang kiểm tra robots.txt: https://xaydungchinhsach.chinhphu.vn/robots.txt
+2026-08-04 10:36:04,748 | ERROR | Bỏ qua URL https://xaydungchinhsach.chinhphu.vn/nguoi-lao-dong-nghi-viec-duoc-nhan-nhung-khoan-tien-nao-119240509063307003.htm — không tải được robots.txt: HTTPSConnectionPool(host='xaydungchinhsach.chinhphu.vn', port=443): Max retries exceeded with url: /robots.txt (Caused by NewConnectionError("HTTPSConnection(host='xaydungchinhsach.chinhphu.vn', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"))
+2026-08-04 10:36:06,250 | INFO | Đang kiểm tra robots.txt: https://xaydungchinhsach.chinhphu.vn/robots.txt
+2026-08-04 10:36:12,327 | ERROR | Bỏ qua URL https://xaydungchinhsach.chinhphu.vn/noi-dung-cua-hop-dong-lao-dong-va-hop-dong-lam-viec-co-gi-khac-nhau-119230830114203459.htm — không tải được robots.txt: HTTPSConnectionPool(host='xaydungchinhsach.chinhphu.vn', port=443): Max retries exceeded with url: /robots.txt (Caused by NewConnectionError("HTTPSConnection(host='xaydungchinhsach.chinhphu.vn', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"))
+2026-08-04 10:36:13,830 | INFO | Đang kiểm tra robots.txt: https://xaydungchinhsach.chinhphu.vn/robots.txt
+2026-08-04 10:36:19,892 | ERROR | Bỏ qua URL https://xaydungchinhsach.chinhphu.vn/lao-dong-nu-duoc-huong-nhung-quyen-loi-gi-ve-lao-dong-va-bhxh-119240309012658792.htm — không tải được robots.txt: HTTPSConnectionPool(host='xaydungchinhsach.chinhphu.vn', port=443): Max retries exceeded with url: /robots.txt (Caused by NewConnectionError("HTTPSConnection(host='xaydungchinhsach.chinhphu.vn', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"))
+2026-08-04 10:36:21,393 | INFO | Đang kiểm tra robots.txt: https://xaydungchinhsach.chinhphu.vn/robots.txt
+2026-08-04 10:36:27,463 | ERROR | Bỏ qua URL https://xaydungchinhsach.chinhphu.vn/nghi-dinh-so-293-2025-nd-cp-quy-dinh-muc-luong-toi-thieu-doi-voi-nguoi-lao-dong-lam-viec-theo-hop-dong-lao-dong-119251110172808433.htm — không tải được robots.txt: HTTPSConnectionPool(host='xaydungchinhsach.chinhphu.vn', port=443): Max retries exceeded with url: /robots.txt (Caused by NewConnectionError("HTTPSConnection(host='xaydungchinhsach.chinhphu.vn', port=443): Failed to establish a new connection: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions"))
+2026-08-04 10:36:27,463 | INFO | Đã ghi JSONL, CSV và 0 file JSON
+2026-08-04 10:36:27,478 | ERROR | Chỉ crawl được 0/5 bài hợp lệ
+2026-08-04 10:36:44,117 | INFO | Đang kiểm tra robots.txt: https://baochinhphu.vn/robots.txt
+2026-08-04 10:36:44,413 | INFO | Đang crawl URL: https://baochinhphu.vn/thoi-gian-thu-viec-khong-phai-tham-gia-bhxh-102240122113742016.htm
+2026-08-04 10:36:44,693 | INFO | HTTP status: 200
+2026-08-04 10:36:44,809 | INFO | Tiêu đề: Thời gian thử việc không phải tham gia BHXH
+2026-08-04 10:36:44,811 | INFO | Độ dài nội dung: 1265 ký tự
+2026-08-04 10:36:44,811 | INFO | Crawl thành công 1/5 bài
+2026-08-04 10:36:46,312 | INFO | Đang kiểm tra robots.txt: https://xaydungchinhsach.chinhphu.vn/robots.txt
+2026-08-04 10:36:47,750 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/co-phai-bat-buoc-thuong-tet-tien-luong-lam-them-gio-ngay-le-tet-duoc-tinh-the-nao-119240201145549.htm
+2026-08-04 10:36:48,589 | INFO | HTTP status: 200
+2026-08-04 10:36:48,646 | ERROR | Bỏ qua URL https://xaydungchinhsach.chinhphu.vn/co-phai-bat-buoc-thuong-tet-tien-luong-lam-them-gio-ngay-le-tet-duoc-tinh-the-nao-119240201145549.htm — 'NoneType' object has no attribute 'get'
+2026-08-04 10:36:50,150 | INFO | Đang crawl URL: https://baochinhphu.vn/hieu-the-nao-ve-quy-dinh-tinh-gop-ngay-phep-nam-102240613101442693.htm
+2026-08-04 10:36:51,447 | INFO | HTTP status: 200
+2026-08-04 10:36:51,530 | INFO | Tiêu đề: Hiểu thế nào về quy định tính gộp ngày phép năm?
+2026-08-04 10:36:51,530 | INFO | Độ dài nội dung: 2417 ký tự
+2026-08-04 10:36:51,530 | INFO | Crawl thành công 2/5 bài
+2026-08-04 10:36:53,036 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/nguoi-lao-dong-nghi-viec-duoc-nhan-nhung-khoan-tien-nao-119240509063307003.htm
+2026-08-04 10:36:54,764 | INFO | HTTP status: 200
+2026-08-04 10:36:54,846 | ERROR | Bỏ qua URL https://xaydungchinhsach.chinhphu.vn/nguoi-lao-dong-nghi-viec-duoc-nhan-nhung-khoan-tien-nao-119240509063307003.htm — 'NoneType' object has no attribute 'get'
+2026-08-04 10:36:56,359 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/noi-dung-cua-hop-dong-lao-dong-va-hop-dong-lam-viec-co-gi-khac-nhau-119230830114203459.htm
+2026-08-04 10:36:56,716 | INFO | HTTP status: 200
+2026-08-04 10:36:56,788 | ERROR | Bỏ qua URL https://xaydungchinhsach.chinhphu.vn/noi-dung-cua-hop-dong-lao-dong-va-hop-dong-lam-viec-co-gi-khac-nhau-119230830114203459.htm — 'NoneType' object has no attribute 'get'
+2026-08-04 10:36:58,296 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/lao-dong-nu-duoc-huong-nhung-quyen-loi-gi-ve-lao-dong-va-bhxh-119240309012658792.htm
+2026-08-04 10:36:58,749 | INFO | HTTP status: 200
+2026-08-04 10:36:58,828 | ERROR | Bỏ qua URL https://xaydungchinhsach.chinhphu.vn/lao-dong-nu-duoc-huong-nhung-quyen-loi-gi-ve-lao-dong-va-bhxh-119240309012658792.htm — 'NoneType' object has no attribute 'get'
+2026-08-04 10:37:00,330 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/nghi-dinh-so-293-2025-nd-cp-quy-dinh-muc-luong-toi-thieu-doi-voi-nguoi-lao-dong-lam-viec-theo-hop-dong-lao-dong-119251110172808433.htm
+2026-08-04 10:37:00,523 | INFO | HTTP status: 200
+2026-08-04 10:37:00,664 | ERROR | Bỏ qua URL https://xaydungchinhsach.chinhphu.vn/nghi-dinh-so-293-2025-nd-cp-quy-dinh-muc-luong-toi-thieu-doi-voi-nguoi-lao-dong-lam-viec-theo-hop-dong-lao-dong-119251110172808433.htm — 'NoneType' object has no attribute 'get'
+2026-08-04 10:37:00,675 | INFO | Đã ghi JSONL, CSV và 2 file JSON
+2026-08-04 10:37:00,675 | ERROR | Chỉ crawl được 2/5 bài hợp lệ
+2026-08-04 10:37:56,359 | INFO | Đang kiểm tra robots.txt: https://baochinhphu.vn/robots.txt
+2026-08-04 10:37:56,571 | INFO | Đang crawl URL: https://baochinhphu.vn/thoi-gian-thu-viec-khong-phai-tham-gia-bhxh-102240122113742016.htm
+2026-08-04 10:37:56,646 | INFO | HTTP status: 200
+2026-08-04 10:37:56,746 | INFO | Tiêu đề: Thời gian thử việc không phải tham gia BHXH
+2026-08-04 10:37:56,746 | INFO | Độ dài nội dung: 1265 ký tự
+2026-08-04 10:37:56,746 | INFO | Crawl thành công 1/5 bài
+2026-08-04 10:37:58,251 | INFO | Đang kiểm tra robots.txt: https://xaydungchinhsach.chinhphu.vn/robots.txt
+2026-08-04 10:37:58,685 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/co-phai-bat-buoc-thuong-tet-tien-luong-lam-them-gio-ngay-le-tet-duoc-tinh-the-nao-119240201145549.htm
+2026-08-04 10:37:59,318 | INFO | HTTP status: 200
+2026-08-04 10:37:59,381 | INFO | Tiêu đề: Có phải bắt buộc thưởng Tết? Tiền lương làm thêm giờ ngày lễ, Tết được tính thế nào?
+2026-08-04 10:37:59,381 | INFO | Độ dài nội dung: 1522 ký tự
+2026-08-04 10:37:59,381 | INFO | Crawl thành công 2/5 bài
+2026-08-04 10:38:00,885 | INFO | Đang crawl URL: https://baochinhphu.vn/hieu-the-nao-ve-quy-dinh-tinh-gop-ngay-phep-nam-102240613101442693.htm
+2026-08-04 10:38:02,299 | INFO | HTTP status: 200
+2026-08-04 10:38:02,362 | INFO | Tiêu đề: Hiểu thế nào về quy định tính gộp ngày phép năm?
+2026-08-04 10:38:02,362 | INFO | Độ dài nội dung: 2417 ký tự
+2026-08-04 10:38:02,362 | INFO | Crawl thành công 3/5 bài
+2026-08-04 10:38:03,870 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/nguoi-lao-dong-nghi-viec-duoc-nhan-nhung-khoan-tien-nao-119240509063307003.htm
+2026-08-04 10:38:04,425 | INFO | HTTP status: 200
+2026-08-04 10:38:04,519 | INFO | Tiêu đề: Người lao động nghỉ việc được nhận những khoản tiền nào?
+2026-08-04 10:38:04,519 | INFO | Độ dài nội dung: 5839 ký tự
+2026-08-04 10:38:04,519 | INFO | Crawl thành công 4/5 bài
+2026-08-04 10:38:06,029 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/noi-dung-cua-hop-dong-lao-dong-va-hop-dong-lam-viec-co-gi-khac-nhau-119230830114203459.htm
+2026-08-04 10:38:06,296 | INFO | HTTP status: 200
+2026-08-04 10:38:06,350 | INFO | Tiêu đề: Nội dung của hợp đồng lao động và hợp đồng làm việc có gì khác nhau?
+2026-08-04 10:38:06,350 | INFO | Độ dài nội dung: 2109 ký tự
+2026-08-04 10:38:06,350 | INFO | Crawl thành công 5/5 bài
+2026-08-04 10:38:06,363 | INFO | Đã ghi JSONL, CSV và 5 file JSON
+2026-08-04 10:38:06,363 | INFO | Hoàn tất: 5 bài hợp lệ
+2026-08-04 10:40:17,814 | INFO | Đang kiểm tra robots.txt: https://baochinhphu.vn/robots.txt
+2026-08-04 10:40:17,948 | INFO | Đang crawl URL: https://baochinhphu.vn/thoi-gian-thu-viec-khong-phai-tham-gia-bhxh-102240122113742016.htm
+2026-08-04 10:40:18,481 | INFO | HTTP status: 200
+2026-08-04 10:40:18,573 | INFO | Tiêu đề: Thời gian thử việc không phải tham gia BHXH
+2026-08-04 10:40:18,573 | INFO | Độ dài nội dung: 1252 ký tự
+2026-08-04 10:40:18,573 | INFO | Crawl thành công 1/15 bài
+2026-08-04 10:40:20,075 | INFO | Đang kiểm tra robots.txt: https://xaydungchinhsach.chinhphu.vn/robots.txt
+2026-08-04 10:40:20,420 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/co-phai-bat-buoc-thuong-tet-tien-luong-lam-them-gio-ngay-le-tet-duoc-tinh-the-nao-119240201145549.htm
+2026-08-04 10:40:21,268 | INFO | HTTP status: 200
+2026-08-04 10:40:21,380 | INFO | Tiêu đề: Có phải bắt buộc thưởng Tết? Tiền lương làm thêm giờ ngày lễ, Tết được tính thế nào?
+2026-08-04 10:40:21,380 | INFO | Độ dài nội dung: 1522 ký tự
+2026-08-04 10:40:21,380 | INFO | Crawl thành công 2/15 bài
+2026-08-04 10:40:22,883 | INFO | Đang crawl URL: https://baochinhphu.vn/hieu-the-nao-ve-quy-dinh-tinh-gop-ngay-phep-nam-102240613101442693.htm
+2026-08-04 10:40:23,199 | INFO | HTTP status: 200
+2026-08-04 10:40:23,287 | INFO | Tiêu đề: Hiểu thế nào về quy định tính gộp ngày phép năm?
+2026-08-04 10:40:23,294 | INFO | Độ dài nội dung: 2404 ký tự
+2026-08-04 10:40:23,294 | INFO | Crawl thành công 3/15 bài
+2026-08-04 10:40:24,795 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/nguoi-lao-dong-nghi-viec-duoc-nhan-nhung-khoan-tien-nao-119240509063307003.htm
+2026-08-04 10:40:25,164 | INFO | HTTP status: 200
+2026-08-04 10:40:25,277 | INFO | Tiêu đề: Người lao động nghỉ việc được nhận những khoản tiền nào?
+2026-08-04 10:40:25,277 | INFO | Độ dài nội dung: 5839 ký tự
+2026-08-04 10:40:25,277 | INFO | Crawl thành công 4/15 bài
+2026-08-04 10:40:26,779 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/noi-dung-cua-hop-dong-lao-dong-va-hop-dong-lam-viec-co-gi-khac-nhau-119230830114203459.htm
+2026-08-04 10:40:26,937 | INFO | HTTP status: 200
+2026-08-04 10:40:27,023 | INFO | Tiêu đề: Nội dung của hợp đồng lao động và hợp đồng làm việc có gì khác nhau?
+2026-08-04 10:40:27,025 | INFO | Độ dài nội dung: 2109 ký tự
+2026-08-04 10:40:27,025 | INFO | Crawl thành công 5/15 bài
+2026-08-04 10:40:28,526 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/lao-dong-nu-duoc-huong-nhung-quyen-loi-gi-ve-lao-dong-va-bhxh-119240309012658792.htm
+2026-08-04 10:40:28,598 | INFO | HTTP status: 200
+2026-08-04 10:40:28,722 | INFO | Tiêu đề: Lao động nữ được hưởng những quyền lợi gì về lao động và BHXH?
+2026-08-04 10:40:28,727 | INFO | Độ dài nội dung: 8905 ký tự
+2026-08-04 10:40:28,727 | INFO | Crawl thành công 6/15 bài
+2026-08-04 10:40:30,229 | INFO | Đang crawl URL: https://xaydungchinhsach.chinhphu.vn/nghi-dinh-so-293-2025-nd-cp-quy-dinh-muc-luong-toi-thieu-doi-voi-nguoi-lao-dong-lam-viec-theo-hop-dong-lao-dong-119251110172808433.htm
+2026-08-04 10:40:30,357 | INFO | HTTP status: 200
+2026-08-04 10:40:30,557 | INFO | Tiêu đề: Nghị định số 293/2025/NĐ-CP: Quy định mức lương tối thiểu
+2026-08-04 10:40:30,557 | INFO | Độ dài nội dung: 31323 ký tự
+2026-08-04 10:40:30,557 | INFO | Crawl thành công 7/15 bài
+2026-08-04 10:40:30,592 | INFO | Đã ghi JSONL, CSV và 7 file JSON
+2026-08-04 10:40:30,597 | ERROR | Chỉ crawl được 7/15 bài hợp lệ
