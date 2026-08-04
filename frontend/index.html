@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trợ Lý Luật — AI Pháp Lý Thông Minh Tại Việt Nam</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="app-body">
+
+    <!-- FLOATING BACKGROUND GLOWS -->
+    <div class="bg-blur-container">
+        <div class="blur-glow glow-1"></div>
+        <div class="blur-glow glow-2"></div>
+        <div class="blur-glow glow-3"></div>
+    </div>
+
+    <!-- NAVBAR HEADER (LIKE TROLYLUAT.VN) -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-emblem">
+                    <span class="star-icon">✦</span>
+                    <span class="scale-icon">⚖️</span>
+                </div>
+                <div class="brand-title">
+                    <span class="brand-name">Trợ Lý Luật</span>
+                    <span class="brand-sub">Pháp Luật Lao Động 2019</span>
+                </div>
+            </div>
+
+            <nav class="nav-links">
+                <a href="#" class="nav-link active">✦ AI Tư vấn</a>
+                <a href="#" class="nav-link">Kiến thức</a>
+                <a href="#" class="nav-link">Phân tích</a>
+                <a href="#" class="nav-link">Biểu mẫu</a>
+                <a href="#" class="nav-link">Văn bản BLLĐ</a>
+            </nav>
+
+            <div class="nav-actions">
+                <button id="btnNewChat" class="btn-secondary-pill">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span>Cuộc hội thoại mới</span>
+                </button>
+                <span class="badge-status-pill">● Trực tuyến</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN WRAPPER LAYOUT -->
+    <div class="main-layout">
+
+        <!-- LEFT SIDEBAR: TOPIC & RAG CONFIG -->
+        <aside class="sidebar-panel">
+            <div class="sidebar-box">
+                <div class="box-title">⚙️ Cấu Hình RAG Engine</div>
+                <div class="slider-control">
+                    <div class="slider-label">
+                        <span>Số đoạn trích dẫn (top_k)</span>
+                        <b id="topKValue">5</b>
+                    </div>
+                    <input type="range" id="topKSlider" min="3" max="10" value="5" step="1">
+                </div>
+                <button id="btnClearChat" class="btn-clear">🧹 Xóa Lịch Sử Hội Thoại</button>
+            </div>
+
+            <div class="sidebar-box scrollable">
+                <div class="box-title">📜 Tình Huống Pháp Lý Chọn Nhanh</div>
+
+                <div class="category-block">
+                    <div class="cat-title">💼 1. Thử Việc & Mức Lương</div>
+                    <button class="suggestion-item" data-query="Thời gian thử việc tối đa cho vị trí lập trình viên là bao lâu và lương thử việc tối thiểu bằng bao nhiêu % lương chính thức?">
+                        <span>✦</span> Thử việc & Mức lương tối thiểu 85%
+                    </button>
+                    <button class="suggestion-item" data-query="Thời gian thử việc có phải đóng bảo hiểm xã hội bắt buộc không?">
+                        <span>✦</span> Thử việc có phải đóng BHXH bắt buộc?
+                    </button>
+                </div>
+
+                <div class="category-block">
+                    <div class="cat-title">🚨 2. Sa Thải & Chấm Dứt HĐLĐ</div>
+                    <button class="suggestion-item" data-query="Công ty sa thải tôi qua tin nhắn Zalo mà không báo trước 30 ngày thì có đúng luật không?">
+                        <span>✦</span> Sa thải qua Zalo không báo trước
+                    </button>
+                    <button class="suggestion-item" data-query="Người lao động tự ý nghỉ việc không báo trước thì phải bồi thường những gì?">
+                        <span>✦</span> Tự ý nghỉ việc bồi thường ra sao?
+                    </button>
+                </div>
+
+                <div class="category-block">
+                    <div class="cat-title">⏰ 3. Làm Thêm Giờ (OT)</div>
+                    <button class="suggestion-item" data-query="Công ty bắt làm OT quá 40 giờ/tháng nhưng không trả tiền làm thêm giờ thì xử lý ra sao?">
+                        <span>✦</span> Làm OT quá 40h/tháng không trả tiền
+                    </button>
+                    <button class="suggestion-item" data-query="Thời giờ làm việc bình thường của người lao động được quy định như thế nào?">
+                        <span>✦</span> Thời giờ làm việc bình thường
+                    </button>
+                </div>
+
+                <div class="category-block">
+                    <div class="cat-title">🛡️ 4. Nghỉ Phép & Thai Sản</div>
+                    <button class="suggestion-item" data-query="Người lao động có bao nhiêu ngày nghỉ hằng năm hưởng nguyên lương?">
+                        <span>✦</span> Số ngày nghỉ phép hằng năm
+                    </button>
+                    <button class="suggestion-item" data-query="Thời gian nghỉ thai sản của lao động nữ theo quy định hiện hành là bao nhiêu tháng?">
+                        <span>✦</span> Chế độ nghỉ thai sản nữ
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-box info-box">
+                <div class="box-title">🏛️ Căn Cứ Dữ Liệu</div>
+                <p>• <b>Bộ luật Lao động 2019</b> (45/2019/QH14)</p>
+                <p>• <b>Nghị định 145/2020/NĐ-CP</b></p>
+                <p>• <b>Luật Bảo hiểm xã hội 2024</b></p>
+            </div>
+        </aside>
+
+        <!-- RIGHT CHAT SURFACE -->
+        <main class="chat-surface">
+            <div class="chat-viewport" id="chatViewport">
+
+                <!-- HERO SECTION (TROLYLUAT.VN STYLE) -->
+                <div class="hero-section" id="heroSection">
+                    <div class="ai-badge">
+                        <span class="star-gold">✦</span> AI Pháp Lý Thông Minh Tại Việt Nam
+                    </div>
+
+                    <h1 class="hero-main-title">Trợ lý pháp luật<br><span class="highlight-text">đáng tin cậy</span></h1>
+                    <p class="hero-tagline">AI đồng hành cùng bạn trong mọi vấn đề pháp lý lao động</p>
+                    <p class="hero-subtext">Tra cứu, phân tích và giải đáp vấn đề pháp lý nhanh chóng, có căn cứ trích dẫn rõ ràng.</p>
+
+                    <!-- TROLYLUAT STYLE FORM BOX -->
+                    <div class="trolyluat-form-card">
+                        <h3 class="form-card-title">Bạn cần AI hỗ trợ vấn đề pháp lý nào?</h3>
+                        
+                        <div class="quick-tags-grid">
+                            <button class="quick-tag-btn" data-query="Thời gian thử việc tối đa cho vị trí lập trình viên là bao lâu và lương thử việc tối thiểu bằng bao nhiêu % lương chính thức?">
+                                <span class="tag-icon">💼</span>
+                                <div class="tag-text">
+                                    <b class="tag-head">Lương thử việc</b>
+                                    <span class="tag-cat">Lao động</span>
+                                </div>
+                            </button>
+
+                            <button class="quick-tag-btn" data-query="Công ty sa thải tôi qua tin nhắn Zalo mà không báo trước 30 ngày thì có đúng luật không?">
+                                <span class="tag-icon">🚨</span>
+                                <div class="tag-text">
+                                    <b class="tag-head">Sa thải qua Zalo</b>
+                                    <span class="tag-cat">Tranh chấp</span>
+                                </div>
+                            </button>
+
+                            <button class="quick-tag-btn" data-query="Công ty bắt làm OT quá 40 giờ/tháng nhưng không trả tiền làm thêm giờ thì xử lý ra sao?">
+                                <span class="tag-icon">⏰</span>
+                                <div class="tag-text">
+                                    <b class="tag-head">Tiền lương OT</b>
+                                    <span class="tag-cat">Quyền lợi</span>
+                                </div>
+                            </button>
+
+                            <button class="quick-tag-btn" data-query="Thời gian nghỉ thai sản của lao động nữ theo quy định hiện hành là bao nhiêu tháng?">
+                                <span class="tag-icon">🛡️</span>
+                                <div class="tag-text">
+                                    <b class="tag-head">Nghỉ thai sản</b>
+                                    <span class="tag-cat">Bảo hiểm</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TRUST BADGES -->
+                    <div class="trust-badges-row">
+                        <span class="trust-badge">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            Cập nhật BLLĐ 2019 mới nhất
+                        </span>
+                        <span class="trust-badge">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                            Dẫn nguồn pháp lý chính xác
+                        </span>
+                        <span class="trust-badge">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            Bảo mật thông tin 100%
+                        </span>
+                    </div>
+
+                </div>
+
+                <!-- CHAT MESSAGES STREAM CONTAINER -->
+                <div class="chat-messages-list" id="chatMessagesList"></div>
+
+            </div>
+
+            <!-- FLOATING INPUT FORM (TROLYLUAT INPUT BAR) -->
+            <div class="floating-input-bar">
+                <form id="chatForm" class="trolyluat-input-box">
+                    <div class="input-field-container">
+                        <textarea id="userInput" placeholder="Nhập thắc mắc pháp lý của bạn (VD: Lương thử việc tối thiểu 85%, sa thải qua Zalo...)..." rows="1" required></textarea>
+                        <span class="sparkle-icon">✦</span>
+                    </div>
+                    <div class="input-actions-bar">
+                        <span class="input-hint">Nhấn <b>Enter</b> để hỏi, <b>Shift + Enter</b> để xuống dòng</span>
+                        <button type="submit" id="btnSend" class="btn-ask-gradient">
+                            <span>✦ Hỏi Trợ Lý Luật</span>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
