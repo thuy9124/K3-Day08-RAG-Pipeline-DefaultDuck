@@ -24,6 +24,35 @@ def _cosine(left: list[float], right: list[float]) -> float:
     return dot / (norm_left * norm_right) if norm_left and norm_right else 0.0
 
 
+def _tokenize(text: str) -> list[str]:
+    return re.findall(r"\w+", text.lower())
+
+
+def _cosine_similarity(a: list[float], b: list[float]) -> float:
+    if not a or not b:
+        return 0.0
+    if len(a) != len(b):
+        length = min(len(a), len(b))
+        a = a[:length]
+        b = b[:length]
+    dot = sum(x * y for x, y in zip(a, b))
+    norm_a = math.sqrt(sum(x * x for x in a))
+    norm_b = math.sqrt(sum(y * y for y in b))
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
+    return dot / (norm_a * norm_b)
+
+
+def _build_token_vector(text: str) -> list[float]:
+    tokens = _tokenize(text)
+    if not tokens:
+        return []
+    vector = {}
+    for token in tokens:
+        vector[token] = vector.get(token, 0) + 1.0
+    return [vector.get(token, 0.0) for token in sorted(vector)]
+
+
 def rerank_cross_encoder(
     query: str, candidates: list[dict], top_k: int = 5
 ) -> list[dict]:
