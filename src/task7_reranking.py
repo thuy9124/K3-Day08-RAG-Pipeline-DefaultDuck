@@ -1,18 +1,18 @@
-"""
-Task 7 — Reranking Module.
+"""Task 7 — reranking bằng Reciprocal Rank Fusion (RRF, k=60)."""
+from __future__ import annotations
 
-Chọn 1 trong các phương pháp:
-    - Cross-encoder reranker: Jina Reranker v2 (multilingual) hoặc Qwen3-Reranker
-    - MMR (Maximal Marginal Relevance): tự implement
-    - RRF (Reciprocal Rank Fusion): tự implement — khuyến nghị vì không cần API key
+import math
+from typing import Any
 
-Nếu dùng MMR hoặc RRF, đảm bảo hiểu và giải thích được cơ chế.
 
-Lưu ý quan trọng về RRF (sẽ dùng lại ở Task 9): điểm RRF fused CHỈ phụ thuộc thứ hạng,
-không phải độ tương đồng thật. Top-1 sau khi fuse luôn xấp xỉ 1/(k+1) ≈ 0.0164 (k=60),
-bất kể nội dung đó có thật sự liên quan đến câu hỏi hay không. Đừng dùng điểm RRF để
-quyết định fallback ở Task 9 — xem ghi chú ở đó.
-"""
+def _identity(item: dict[str, Any]) -> str:
+    """Định danh cùng chunk giữa nhiều ranker, fallback về content."""
+    metadata = item.get("metadata") or {}
+    source_path = metadata.get("source_path") or metadata.get("source")
+    chunk_index = metadata.get("chunk_index")
+    if source_path is not None and chunk_index is not None:
+        return f"{source_path}::{chunk_index}"
+    return str(item.get("content", ""))
 
 import math
 import re
@@ -122,8 +122,32 @@ def rerank_mmr(
 def rerank_rrf(
     ranked_lists: list[list[dict]], top_k: int = 5, k: int = 60
 ) -> list[dict]:
-    """
-    Reciprocal Rank Fusion — gộp kết quả từ nhiều ranker.
+    """Gộp nhiều ranked list bằng ``sum(1 / (k + rank))``."""
+    if top_k <= 0:
+        return []
+    if k < 0:
+        raise ValueError("RRF k phải >= 0")
+    scores: dict[str, float] = {}
+    items: dict[str, dict[str, Any]] = {}
+    ranks: dict[str, dict[str, int]] = {}
+    for list_index, ranked_list in enumerate(ranked_lists):
+        seen_in_list: set[str] = set()
+        for rank, candidate in enumerate(ranked_list, 1):
+            key = _identity(candidate)
+            if not key or key in seen_in_list:
+                continue
+            seen_in_list.add(key)
+            scores[key] = scores.get(key, 0.0) + 1.0 / (k + rank)
+            items.setdefault(key, candidate.copy())
+            ranks.setdefault(key, {})[f"ranker_{list_index}"] = rank
+    ordered = sorted(scores, key=lambda key: (-scores[key], key))
+    results: list[dict[str, Any]] = []
+    for key in ordered[:top_k]:
+        item = items[key].copy()
+        item["score"] = float(scores[key])
+        item["rrf_ranks"] = ranks[key]
+        results.append(item)
+    return results
 
     RRF(d) = Σ 1 / (k + rank_r(d))
     """
@@ -159,7 +183,7 @@ def rerank(
     query: str,
     candidates: list[dict],
     top_k: int = 5,
-    method: str = "rrf",  # "cross_encoder" | "mmr" | "rrf"
+    method: str = "rrf",
 ) -> list[dict]:
     """
     Unified reranking interface.
@@ -178,12 +202,10 @@ def rerank(
 
 
 if __name__ == "__main__":
-    # Test with dummy data
-    dummy_candidates = [
-        {"content": "Tuition fee payment schedule", "score": 0.8, "metadata": {}},
-        {"content": "Scholarship eligibility requirements", "score": 0.6, "metadata": {}},
-        {"content": "Library study room booking guide", "score": 0.5, "metadata": {}},
+    dense = [
+        {"content": "Lương thử việc", "score": 0.8, "metadata": {"chunk_index": 1}},
+        {"content": "Nghỉ phép năm", "score": 0.7, "metadata": {"chunk_index": 2}},
     ]
-    results = rerank("tuition fee payment", dummy_candidates, top_k=2)
-    for r in results:
-        print(f"[{r['score']:.3f}] {r['content']}")
+    sparse = list(reversed(dense))
+    for result in rerank_rrf([dense, sparse]):
+        print(f"[{result['score']:.5f}] {result['content']}")

@@ -95,7 +95,6 @@ def lexical_search(query: str, top_k: int = 10) -> list[dict]:
 
 
 if __name__ == "__main__":
-    # Test
-    results = lexical_search("tuition fee payment methods", top_k=5)
-    for r in results:
-        print(f"[{r['score']:.3f}] {r['content'][:100]}...")
+    for result in lexical_search("lương thử việc", top_k=5):
+        print(f"[{result['score']:.3f}] {result['metadata'].get('source')}")
+        print(result["content"][:180], "\n")

@@ -1,16 +1,19 @@
 """
-RAG Chatbot — University Services (Starter Template)
-Streamlit app kết nối RAG Retrieval (Task 9) và Generation (Task 10).
+🇻🇳 GenZ LaborLaw AI — Trợ Lý Tra Cứu Pháp Luật Lao Động Việt Nam
+Streamlit App tích hợp giao diện HTML/CSS/JS tùy biến (trolyluat.vn Style - Hướng 2).
 
 Chạy:
-    streamlit run app.py
+    python -m streamlit run app.py
 """
 
 import os
 import sys
+import socket
+import threading
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -20,132 +23,104 @@ PROJECT_ROOT = Path(__file__).parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # =============================================================================
-# PAGE CONFIG
+# TỰ ĐỘNG KHỞI CHẠY FASTAPI BACKGROUND SERVER (NẾU CHƯA MỞ PORT 8000)
+# =============================================================================
+
+def ensure_api_running():
+    """Tự động mở Uvicorn API server nếu port 8000 chưa hoạt động."""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex(('127.0.0.1', 8000))
+    sock.close()
+    if result != 0:
+        try:
+            import uvicorn
+            from api import app as fastapi_app
+            thread = threading.Thread(
+                target=uvicorn.run,
+                kwargs={"app": fastapi_app, "host": "127.0.0.1", "port": 8000, "log_level": "error"},
+                daemon=True
+            )
+            thread.start()
+        except Exception as e:
+            print(f"Lỗi khởi chạy FastAPI background: {e}")
+
+ensure_api_running()
+
+# =============================================================================
+# STREAMLIT PAGE CONFIG & FULLSCREEN CSS RESET
 # =============================================================================
 
 st.set_page_config(
-    page_title="University Services RAG Chatbot",
-    page_icon="🎓",
+    page_title="Trợ Lý Pháp Luật Lao Động Việt Nam AI (trolyluat.vn)",
+    page_icon="⚖️",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
-# =============================================================================
-# SIDEBAR — INFO & SETTINGS
-# =============================================================================
-
-with st.sidebar:
-    st.title("🎓 University Services RAG")
-    st.caption("Trợ lý hỏi đáp về dịch vụ và chính sách đại học (học phí, học bổng, ký túc xá, thư viện)")
-
-    st.divider()
-
-    st.subheader("💡 Câu hỏi gợi ý")
-    suggestions = [
-        "Học phí tại RMIT Vietnam là bao nhiêu?",
-        "Làm sao để đặt phòng học nhóm ở thư viện?",
-        "Điều kiện xin học bổng Academic Achievement?",
-        "Dịch vụ hỗ trợ chỗ ở cho sinh viên như thế nào?",
-        "Cách đăng ký học phần qua myRMIT?",
-    ]
-    for s in suggestions:
-        if st.button(s, use_container_width=True, key=f"sug_{s[:20]}"):
-            st.session_state["pending_query"] = s
-
-    st.divider()
-    st.subheader("⚙️ Thiết lập")
-    top_k = st.slider("Số chunks retrieval (top_k)", 3, 10, 5)
-
-    st.divider()
-    st.caption("**Kiến trúc hệ thống:**")
-    st.caption("Hybrid Retrieval (Semantic + BM25) → RRF Rerank → PageIndex Fallback → LLM Generation có Citation")
+# Hide default Streamlit padding, header, footer to allow 100% viewport iframe
+st.markdown("""
+<style>
+    header[data-testid="stHeader"] { display: none !important; }
+    .stApp > header { display: none !important; }
+    #MainMenu { visibility: hidden; }
+    footer { visibility: hidden; }
+    .block-container {
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
+        padding-left: 0rem !important;
+        padding-right: 0rem !important;
+        max-width: 100% !important;
+    }
+    iframe {
+        width: 100% !important;
+        border: none !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # =============================================================================
-# SESSION STATE
+# LOAD HTML / CSS / JS FRONTEND CODEBASE
 # =============================================================================
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "pending_query" not in st.session_state:
-    st.session_state.pending_query = None
+def load_custom_frontend() -> str:
+    """Tải và nhúng trực tiếp HTML, CSS, JS từ thư mục frontend/."""
+    frontend_dir = PROJECT_ROOT / "frontend"
+    index_path = frontend_dir / "index.html"
+    css_path = frontend_dir / "style.css"
+    js_path = frontend_dir / "app.js"
+
+    if not index_path.exists() or not css_path.exists() or not js_path.exists():
+        return "<h3>❌ Thư mục frontend/ thiếu file index.html, style.css hoặc app.js.</h3>"
+
+    html_content = index_path.read_text(encoding="utf-8")
+    css_content = css_path.read_text(encoding="utf-8")
+    js_content = js_path.read_text(encoding="utf-8")
+
+    # Nhúng trực tiếp CSS vào HTML style tag
+    html_content = html_content.replace(
+        '<link rel="stylesheet" href="/static/style.css">',
+        f'<style>\n{css_content}\n</style>'
+    )
+
+    # Đảm bảo Javascript gọi endpoint API http://127.0.0.1:8000/api/chat
+    js_content_modified = js_content.replace('fetch("/api/chat"', 'fetch("http://127.0.0.1:8000/api/chat"')
+
+    # Nhúng trực tiếp JS vào HTML script tag
+    html_content = html_content.replace(
+        '<script src="/static/app.js"></script>',
+        f'<script>\n{js_content_modified}\n</script>'
+    )
+
+    return html_content
 
 # =============================================================================
-# MAIN CHAT AREA
+# RENDER CUSTOM FRONTEND COMPONENT
 # =============================================================================
 
-st.title("🎓 University Services RAG Chatbot")
-st.caption("Hệ thống hỏi đáp thông tin dịch vụ đại học (Học phí, Học bổng, Ký túc xá, Thư viện)")
+custom_html = load_custom_frontend()
+components.html(custom_html, height=920, scrolling=True)
 
-# Hiển thị lịch sử chat
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
-        if msg["role"] == "assistant" and "sources" in msg and msg["sources"]:
-            with st.expander(f"📚 Nguồn tham khảo ({len(msg['sources'])} chunks)"):
-                for i, src in enumerate(msg["sources"], 1):
-                    meta = src.get("metadata", {})
-                    source_name = meta.get("source", "Unknown")
-                    doc_type = meta.get("type", "unknown")
-                    score = src.get("score", 0)
-                    st.markdown(f"**[{i}] {source_name}** `{doc_type}` | score: `{score:.4f}`")
-                    st.text(src.get("content", "")[:300] + "...")
-                    st.divider()
 
-# =============================================================================
-# QUERY HANDLING
-# =============================================================================
 
-# Xử lý khi bấm nút gợi ý hoặc nhập câu hỏi mới
-user_input = st.chat_input("Nhập câu hỏi của bạn về chính sách/dịch vụ đại học...")
-query = user_input or st.session_state.pending_query
 
-if query:
-    st.session_state.pending_query = None
 
-    # Hiển thị câu hỏi của user
-    st.session_state.messages.append({"role": "user", "content": query})
-    with st.chat_message("user"):
-        st.markdown(query)
-
-    # Sinh câu trả lời từ RAG Pipeline
-    with st.chat_message("assistant"):
-        with st.spinner("Đang tìm kiếm tài liệu và tổng hợp câu trả lời..."):
-            try:
-                # TODO (Học viên): Tích hợp hàm sinh câu trả lời từ Task 10
-                # Ví dụ:
-                # from src.task10_generation import generate_with_citation
-                # response = generate_with_citation(query, top_k=top_k)
-                # answer = response["answer"]
-                # sources = response.get("sources", [])
-
-                # Tạm thời mockup để test UI:
-                from src.task10_generation import generate_with_citation
-                response = generate_with_citation(query, top_k=top_k)
-                answer = response.get("answer", "Chưa thể trả lời.")
-                sources = response.get("sources", [])
-
-            except NotImplementedError:
-                answer = "⚠️ **Task 10 chưa được implement.** Hãy hoàn thành `src/task10_generation.py` để kết nối pipeline vào UI!"
-                sources = []
-            except Exception as e:
-                answer = f"❌ **Lỗi khi chạy RAG Pipeline:** {e}"
-                sources = []
-
-            st.markdown(answer)
-
-            if sources:
-                with st.expander(f"📚 Nguồn tham khảo ({len(sources)} chunks)"):
-                    for i, src in enumerate(sources, 1):
-                        meta = src.get("metadata", {})
-                        source_name = meta.get("source", "Unknown")
-                        doc_type = meta.get("type", "unknown")
-                        score = src.get("score", 0)
-                        st.markdown(f"**[{i}] {source_name}** `{doc_type}` | score: `{score:.4f}`")
-                        st.text(src.get("content", "")[:300] + "...")
-                        st.divider()
-
-    st.session_state.messages.append({
-        "role": "assistant",
-        "content": answer,
-        "sources": sources,
-    })
