@@ -1,9 +1,9 @@
-"""Task 5 — dense semantic retrieval từ ChromaDB bằng BGE-M3."""
+"""Task 5 — dense retrieval từ ChromaDB, query embedding qua Voyage API."""
 from __future__ import annotations
 
 from typing import Any
 
-from .task4_chunking_indexing import get_collection, get_embedding_model
+from .task4_chunking_indexing import get_collection, get_embedding_client
 
 
 def semantic_search(query: str, top_k: int = 10) -> list[dict[str, Any]]:
@@ -18,9 +18,7 @@ def semantic_search(query: str, top_k: int = 10) -> list[dict[str, Any]]:
     count = collection.count()
     if count == 0:
         return []
-    query_vector = get_embedding_model().encode(
-        query, normalize_embeddings=True, show_progress_bar=False
-    ).tolist()
+    query_vector = get_embedding_client().embed([query], input_type="query")[0]
     raw = collection.query(
         query_embeddings=[query_vector],
         n_results=min(top_k, count),
