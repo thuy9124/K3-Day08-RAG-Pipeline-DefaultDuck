@@ -17,9 +17,8 @@ Hướng dẫn:
 """
 
 import json
+import argparse
 from pathlib import Path
-
-from markitdown import MarkItDown
 
 LANDING_DIR = Path(__file__).parent.parent / "data" / "landing"
 OUTPUT_DIR = Path(__file__).parent.parent / "data" / "standardized"
@@ -31,6 +30,10 @@ def convert_legal_docs():
     output_dir = OUTPUT_DIR / "legal"
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    try:
+        from markitdown import MarkItDown
+    except ImportError as exc:
+        raise RuntimeError('Cần cài "markitdown[pdf]" khi dùng --refresh') from exc
     md = MarkItDown()
 
     for filepath in legal_dir.iterdir():
@@ -39,7 +42,13 @@ def convert_legal_docs():
             # TODO: Convert và lưu file
             result = md.convert(str(filepath))
             output_path = output_dir / f"{filepath.stem}.md"
-            output_path.write_text(result.text_content, encoding="utf-8")
+            converted = (result.text_content or "").strip()
+            if not converted:
+                if output_path.exists() and output_path.stat().st_size > 200:
+                    print(f"  ! Converter trả rỗng; giữ bản Markdown hiện có: {output_path}")
+                    continue
+                raise RuntimeError(f"Không trích xuất được nội dung từ {filepath.name}")
+            output_path.write_text(converted, encoding="utf-8")
             print(f"  ✓ Saved: {output_path}")
 
 
@@ -81,5 +90,27 @@ def convert_all():
     print("\n✓ Done! Output tại:", OUTPUT_DIR)
 
 
+def validate_standardized() -> list[Path]:
+    """Xác nhận mỗi source có một Markdown không rỗng mà không chạy converter."""
+    missing: list[str] = []
+    outputs: list[Path] = []
+    for source in sorted(LANDING_DIR.rglob("*")):
+        if not source.is_file() or source.suffix.lower() not in {".pdf", ".doc", ".docx", ".json"}:
+            continue
+        relative = source.relative_to(LANDING_DIR).with_suffix(".md")
+        output = OUTPUT_DIR / relative
+        if not output.exists() or output.stat().st_size <= 200:
+            missing.append(relative.as_posix())
+        else:
+            outputs.append(output)
+    if missing:
+        raise RuntimeError("Thiếu Markdown hợp lệ: " + ", ".join(missing))
+    print(f"✓ Đã kiểm tra {len(outputs)} file Markdown tương ứng, tất cả đều hợp lệ")
+    return outputs
+
+
 if __name__ == "__main__":
-    convert_all()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--refresh", action="store_true", help="convert lại source files")
+    args = parser.parse_args()
+    convert_all() if args.refresh else validate_standardized()

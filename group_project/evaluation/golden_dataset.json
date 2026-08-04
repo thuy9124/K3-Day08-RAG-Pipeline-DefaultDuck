@@ -36,8 +36,8 @@
 },
 {
 "question": "Lao động nam đang đóng BHXH khi vợ sinh con được nghỉ việc hưởng chế độ thai sản bao nhiêu ngày?",
-"expected_answer": "Lao động nam được nghỉ 05 ngày làm việc nếu sinh thường 1 con; 07 ngày làm việc nếu mổ hoặc sinh con dưới 32 tuần tuổi; 10 ngày nếu sinh đôi (sinh 3 trở lên thì thêm 3 ngày/con).",
-"expected_context": ["Luật Bảo hiểm xã hội 2014, Điều 31 & BLLĐ 2019"]
+"expected_answer": "Theo Điều 53 Luật BHXH 2024, lao động nam đang tham gia BHXH bắt buộc được nghỉ 05 ngày làm việc; 07 ngày nếu vợ sinh con phải phẫu thuật hoặc sinh con dưới 32 tuần; 10 ngày nếu sinh đôi và thêm 03 ngày cho mỗi con từ con thứ ba; 14 ngày nếu sinh đôi phải phẫu thuật. Thời điểm bắt đầu nghỉ phải nằm trong 60 ngày kể từ ngày vợ sinh con.",
+"expected_context": ["Luật Bảo hiểm xã hội 2024, Điều 53"]
 },
 {
 "question": "Điều kiện để người lao động được hưởng trợ cấp thôi việc và mức hưởng trợ cấp thôi việc tính như thế nào?",
