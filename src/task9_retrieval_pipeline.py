@@ -54,13 +54,25 @@ def retrieve(
                 dense_results = []
             sparse_results = sparse_future.result()
     else:
-        # Zero-cost mode: không gọi Voyage query API; BM25 và structural fallback
-        # đều chạy local.
+        # Zero-cost mode: không gọi semantic API. Hai ranker local BM25 và
+        # structural được hợp nhất bằng RRF.
         dense_results = []
         sparse_results = lexical_search(query, candidate_k)
 
     best_dense_score = dense_results[0]["score"] if dense_results else 0.0
-    if not ALLOW_EXTERNAL_APIS or best_dense_score < score_threshold:
+    if not ALLOW_EXTERNAL_APIS:
+        structural_results = pageindex_search(query, top_k=candidate_k)
+        if use_reranking:
+            merged = rerank_rrf([sparse_results, structural_results], top_k=top_k)
+        else:
+            merged = _deduplicate(sparse_results + structural_results, top_k)
+        for item in merged:
+            item["source"] = "hybrid"
+            item["dense_best_score"] = 0.0
+            item["retrieval_mode"] = "local_bm25_structural_rrf"
+        return merged
+
+    if best_dense_score < score_threshold:
         fallback = pageindex_search(query, top_k=top_k)
         if fallback:
             return fallback

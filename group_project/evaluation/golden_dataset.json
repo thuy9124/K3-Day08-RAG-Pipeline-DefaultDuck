@@ -1,17 +1,77 @@
 [
-  {
-    "question": "Học phí hàng năm của chương trình Business tại RMIT Vietnam là bao nhiêu?",
-    "expected_answer": "Khoảng 375.840.000 VND mỗi năm (tùy chương trình cụ thể).",
-    "expected_context": "Trang Tuition Fees, mục Undergraduate Programs"
-  },
-  {
-    "question": "Học phí được thanh toán theo hình thức nào?",
-    "expected_answer": "Thanh toán theo từng học kỳ, tính theo từng môn học đã đăng ký.",
-    "expected_context": "Trang Tuition Fees, mục Payment Structure"
-  },
-  {
-    "question": "Trường có cung cấp ký túc xá trong khuôn viên không?",
-    "expected_answer": "Không — trường không cung cấp chỗ ở trong khuôn viên, nhưng có đội ngũ hỗ trợ sinh viên tìm chỗ ở gần trường.",
-    "expected_context": "Trang Accommodation Services"
-  }
+{
+"question": "Thời gian thử việc tối đa cho vị trí lập trình viên (trình độ cao đẳng, đại học) là bao lâu và lương thử việc tối thiểu bằng bao nhiêu % lương chính thức?",
+"expected_answer": "Thời gian thử việc tối đa không quá 60 ngày đối với công việc có chức danh nghề nghiệp cần trình độ chuyên môn, kỹ thuật từ cao đẳng trở lên. Mức lương thử việc do hai bên thỏa thuận nhưng ít nhất phải bằng 85% mức lương của công việc đó.",
+"expected_context": ["Bộ luật Lao động 2019, Điều 25 & Điều 26"]
+},
+{
+"question": "Công ty sa thải hoặc đơn phương chấm dứt HĐLĐ với tôi qua tin nhắn Zalo mà không báo trước 30 ngày thì có đúng luật không?",
+"expected_answer": "Không đúng luật. Việc đơn phương chấm dứt HĐLĐ phải được thông báo bằng văn bản và tuân thủ thời hạn báo trước (ít nhất 30 ngày với HĐLĐ xác định thời hạn từ 12-36 tháng hoặc 45 ngày với HĐLĐ không xác định thời hạn). Thông báo qua tin nhắn Zalo không đúng hình thức và không đúng thời gian báo trước.",
+"expected_context": ["Bộ luật Lao động 2019, Điều 36 & Điều 45"]
+},
+{
+"question": "Tiền lương làm thêm giờ (OT) vào ngày thường, ngày nghỉ hằng tuần và ngày lễ tết được tính tối thiểu bằng bao nhiêu %?",
+"expected_answer": "Tiền lương OT được tính: ít nhất bằng 150% vào ngày thường; ít nhất 200% vào ngày nghỉ hằng tuần; ít nhất 300% vào ngày lễ, tết, ngày nghỉ có hưởng lương (chưa kể tiền lương ngày lễ, tết đối với NLĐ hưởng lương ngày).",
+"expected_context": ["Bộ luật Lao động 2019, Điều 98"]
+},
+{
+"question": "Người lao động làm việc đủ 12 tháng cho một công ty trong điều kiện bình thường được hưởng bao nhiêu ngày phép năm?",
+"expected_answer": "Người lao động làm việc đủ 12 tháng cho một người sử dụng lao động được hưởng 12 ngày làm việc nghỉ phép năm hưởng nguyên lương đối với người làm việc trong điều kiện bình thường.",
+"expected_context": ["Bộ luật Lao động 2019, Điều 113"]
+},
+{
+"question": "Người lao động kết hôn hoặc con đẻ kết hôn thì được nghỉ việc riêng hưởng nguyên lương mấy ngày?",
+"expected_answer": "Người lao động kết hôn được nghỉ 03 ngày; con đẻ hoặc con nuôi kết hôn được nghỉ 01 ngày hưởng nguyên lương (phải thông báo với người sử dụng lao động).",
+"expected_context": ["Bộ luật Lao động 2019, Điều 115"]
+},
+{
+"question": "Thời giờ làm việc bình thường của người lao động không được vượt quá bao nhiêu giờ trong một ngày và một tuần?",
+"expected_answer": "Thời giờ làm việc bình thường không quá 08 giờ trong 01 ngày và không quá 48 giờ trong 01 tuần. Nhà nước khuyến khích áp dụng tuần làm việc 40 giờ.",
+"expected_context": ["Bộ luật Lao động 2019, Điều 105"]
+},
+{
+"question": "Công ty có được phép ký hợp đồng thử việc đối với công việc có thời hạn dưới 01 tháng hay không?",
+"expected_answer": "Không được áp dụng thử việc đối với người lao động giao kết hợp đồng lao động có thời hạn dưới 01 tháng.",
+"expected_context": ["Bộ luật Lao động 2019, Điều 24, Khoản 3"]
+},
+{
+"question": "Lao động nam đang đóng BHXH khi vợ sinh con được nghỉ việc hưởng chế độ thai sản bao nhiêu ngày?",
+"expected_answer": "Theo Điều 53 Luật BHXH 2024, lao động nam đang tham gia BHXH bắt buộc được nghỉ 05 ngày làm việc; 07 ngày nếu vợ sinh con phải phẫu thuật hoặc sinh con dưới 32 tuần; 10 ngày nếu sinh đôi và thêm 03 ngày cho mỗi con từ con thứ ba; 14 ngày nếu sinh đôi phải phẫu thuật. Thời điểm bắt đầu nghỉ phải nằm trong 60 ngày kể từ ngày vợ sinh con.",
+"expected_context": ["Luật Bảo hiểm xã hội 2024, Điều 53"]
+},
+{
+"question": "Điều kiện để người lao động được hưởng trợ cấp thôi việc và mức hưởng trợ cấp thôi việc tính như thế nào?",
+"expected_answer": "NLĐ làm việc thường xuyên từ đủ 12 tháng trở lên khi chấm dứt HĐLĐ hợp pháp được hưởng trợ cấp thôi việc. Mỗi năm làm việc được trợ cấp một nửa tháng tiền lương (không tính thời gian đã đóng BHTN).",
+"expected_context": ["Bộ luật Lao động 2019, Điều 46"]
+},
+{
+"question": "Theo Bộ luật Lao động 2019, công ty có bắt buộc phải trả thưởng tiền tháng 13 cho người lao động dịp Tết không?",
+"expected_answer": "Luật không bắt buộc công ty phải thưởng tháng 13 bằng tiền. Tiền thưởng căn cứ vào kết quả sản xuất kinh doanh và mức độ hoàn thành công việc của NLĐ, có thể bằng tiền hoặc tài sản do công ty quy định công khai.",
+"expected_context": ["Bộ luật Lao động 2019, Điều 104"]
+},
+{
+"question": "Người lao động tự ý bỏ việc từ bao nhiêu ngày làm việc liên tục thì công ty có quyền đơn phương chấm dứt HĐLĐ mà không cần báo trước?",
+"expected_answer": "Người lao động tự ý bỏ việc từ 05 ngày làm việc liên tục trở lên mà không có lý do chính đáng thì công ty có quyền đơn phương chấm dứt HĐLĐ không cần báo trước.",
+"expected_context": ["Bộ luật Lao động 2019, Điều 36, Khoản 1, Điểm e"]
+},
+{
+"question": "Công ty có được phép phạt tiền hoặc khấu trừ lương của nhân viên thay cho hình thức xử lý kỷ luật lao động không?",
+"expected_answer": "Nghiêm cấm người sử dụng lao động dùng hình thức phạt tiền, khấu trừ lương thay cho việc xử lý kỷ luật lao động.",
+"expected_context": ["Bộ luật Lao động 2019, Điều 127"]
+},
+{
+"question": "Quy định về thủ tục xin cấp phép chế tạo vũ khí hạt nhân tự chế tại nhà xưởng công ty?",
+"expected_answer": "I cannot verify this information / Không tìm thấy quy định này trong cơ sở dữ liệu Luật Lao động.",
+"expected_context": ["OUT_OF_DOMAIN_QUERY_1"]
+},
+{
+"question": "Chính sách đăng ký bảo hiểm tai nạn lao động cho người du hành thời gian từ thế kỷ 22?",
+"expected_answer": "I cannot verify this information / Không tìm thấy thông tin phù hợp.",
+"expected_context": ["OUT_OF_DOMAIN_QUERY_2"]
+},
+{
+"question": "Hướng dẫn chi tiết quy trình bảo dưỡng động cơ phản lực siêu thanh tại văn phòng trong giờ nghỉ trưa?",
+"expected_answer": "I cannot verify this information / Không có dữ liệu liên quan.",
+"expected_context": ["OUT_OF_DOMAIN_QUERY_3"]
+}
 ]

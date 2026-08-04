@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -72,19 +73,65 @@ def _source_summaries(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return sources
 
 
-def _extractive_answer(chunks: list[dict[str, Any]]) -> str:
-    """Zero-cost answer: trích đoạn liên quan nhất và gắn citation nguồn."""
+_TOKEN_PATTERN = re.compile(r"[^\W_]+", re.UNICODE)
+_STOPWORDS = {
+    "và", "là", "có", "được", "cho", "của", "thì", "bao", "nhiêu", "một",
+    "những", "các", "với", "trong", "tại", "về", "theo", "hay", "không",
+    "người", "công", "ty", "lao", "động", "việc", "hướng", "dẫn", "quy", "định",
+}
+_OUT_OF_DOMAIN_PATTERN = re.compile(
+    r"vũ\s*khí|hạt\s*nhân|du\s*hành\s*thời\s*gian|thế\s*kỷ\s*22|"
+    r"động\s*cơ\s*phản\s*lực|siêu\s*thanh",
+    re.IGNORECASE,
+)
+
+
+def _keywords(text: str) -> set[str]:
+    return {
+        token for token in _TOKEN_PATTERN.findall(text.casefold())
+        if len(token) > 2 and token not in _STOPWORDS
+    }
+
+
+def _has_sufficient_evidence(query: str, chunks: list[dict[str, Any]]) -> bool:
+    """Chặn câu hỏi ngoài domain khi các khái niệm chính không có trong evidence."""
+    if _OUT_OF_DOMAIN_PATTERN.search(query):
+        return False
+    query_terms = _keywords(query)
+    if not query_terms or not chunks:
+        return False
+    context_terms = _keywords(" ".join(str(item.get("content", "")) for item in chunks[:5]))
+    overlap = query_terms & context_terms
+    return len(overlap) >= 2 and len(overlap) / len(query_terms) >= 0.50
+
+
+def _extractive_answer(query: str, chunks: list[dict[str, Any]]) -> str:
+    """Chọn các câu bám sát query nhất và gắn citation nguồn, hoàn toàn local."""
     if not chunks:
         return NO_EVIDENCE_ANSWER
-    parts: list[str] = []
-    for chunk in chunks[:2]:
+    query_terms = _keywords(query)
+    candidates: list[tuple[int, int, str, str]] = []
+    for chunk_index, chunk in enumerate(chunks[:5]):
         metadata = chunk.get("metadata") or {}
         source = str(metadata.get("source") or "Nguồn hiện có")
         content = str(chunk.get("content", "")).strip()
-        if not content:
+        for sentence in re.split(r"(?<=[.!?;:])\s+|\n+", content):
+            sentence = sentence.strip()
+            if len(sentence) < 35:
+                continue
+            score = len(query_terms & _keywords(sentence))
+            if score:
+                candidates.append((score, -chunk_index, sentence[:700], source))
+    candidates.sort(reverse=True)
+    parts: list[str] = []
+    seen: set[str] = set()
+    for _, _, sentence, source in candidates:
+        if sentence.casefold() in seen:
             continue
-        excerpt = content[:700].rsplit(" ", 1)[0].strip()
-        parts.append(f"{excerpt} [{source}]")
+        seen.add(sentence.casefold())
+        parts.append(f"{sentence} [{source}]")
+        if len(parts) == 3:
+            break
     return "\n\n".join(parts) or NO_EVIDENCE_ANSWER
 
 
@@ -100,8 +147,15 @@ def generate_with_citation(query: str, top_k: int = TOP_K) -> dict[str, Any]:
         return {"answer": NO_EVIDENCE_ANSWER, "sources": sources, "retrieval_source": retrieval_source}
 
     if not ALLOW_EXTERNAL_APIS:
+        if not _has_sufficient_evidence(query, chunks):
+            return {
+                "answer": NO_EVIDENCE_ANSWER,
+                "sources": [],
+                "retrieval_source": "none",
+                "generation_mode": "local_safe_rejection",
+            }
         return {
-            "answer": _extractive_answer(chunks),
+            "answer": _extractive_answer(query, chunks),
             "sources": sources,
             "retrieval_source": retrieval_source,
             "generation_mode": "local_extractive",

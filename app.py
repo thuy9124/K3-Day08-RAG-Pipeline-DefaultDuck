@@ -1,5 +1,5 @@
 """
-RAG Chatbot — University Services (Starter Template)
+RAG Chatbot — Pháp luật lao động Việt Nam
 Streamlit app kết nối RAG Retrieval (Task 9) và Generation (Task 10).
 
 Chạy:
@@ -24,8 +24,8 @@ sys.path.insert(0, str(PROJECT_ROOT))
 # =============================================================================
 
 st.set_page_config(
-    page_title="University Services RAG Chatbot",
-    page_icon="🎓",
+    page_title="RAG Pháp luật Lao động",
+    page_icon="⚖️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -35,18 +35,18 @@ st.set_page_config(
 # =============================================================================
 
 with st.sidebar:
-    st.title("🎓 University Services RAG")
-    st.caption("Trợ lý hỏi đáp về dịch vụ và chính sách đại học (học phí, học bổng, ký túc xá, thư viện)")
+    st.title("⚖️ RAG Pháp luật Lao động")
+    st.caption("Tra cứu Bộ luật Lao động 2019, Luật BHXH 2024 và tài liệu hướng dẫn trong corpus local")
 
     st.divider()
 
     st.subheader("💡 Câu hỏi gợi ý")
     suggestions = [
-        "Học phí tại RMIT Vietnam là bao nhiêu?",
-        "Làm sao để đặt phòng học nhóm ở thư viện?",
-        "Điều kiện xin học bổng Academic Achievement?",
-        "Dịch vụ hỗ trợ chỗ ở cho sinh viên như thế nào?",
-        "Cách đăng ký học phần qua myRMIT?",
+        "Lương thử việc tối thiểu bằng bao nhiêu phần trăm?",
+        "Thời giờ làm việc bình thường tối đa là bao nhiêu?",
+        "Tiền lương làm thêm giờ được tính như thế nào?",
+        "Người lao động được nghỉ phép năm bao nhiêu ngày?",
+        "Khi nào được hưởng trợ cấp thôi việc?",
     ]
     for s in suggestions:
         if st.button(s, use_container_width=True, key=f"sug_{s[:20]}"):
@@ -58,7 +58,7 @@ with st.sidebar:
 
     st.divider()
     st.caption("**Kiến trúc hệ thống:**")
-    st.caption("Hybrid Retrieval (Semantic + BM25) → RRF Rerank → PageIndex Fallback → LLM Generation có Citation")
+    st.caption("Local BM25 + Structural → RRF → Local extractive generation có citation (không gọi API)")
 
 # =============================================================================
 # SESSION STATE
@@ -73,8 +73,8 @@ if "pending_query" not in st.session_state:
 # MAIN CHAT AREA
 # =============================================================================
 
-st.title("🎓 University Services RAG Chatbot")
-st.caption("Hệ thống hỏi đáp thông tin dịch vụ đại học (Học phí, Học bổng, Ký túc xá, Thư viện)")
+st.title("⚖️ Chatbot Pháp luật Lao động Việt Nam")
+st.caption("Câu trả lời chỉ dựa trên corpus local và luôn kèm nguồn tham khảo")
 
 # Hiển thị lịch sử chat
 for msg in st.session_state.messages:
@@ -96,7 +96,7 @@ for msg in st.session_state.messages:
 # =============================================================================
 
 # Xử lý khi bấm nút gợi ý hoặc nhập câu hỏi mới
-user_input = st.chat_input("Nhập câu hỏi của bạn về chính sách/dịch vụ đại học...")
+user_input = st.chat_input("Nhập câu hỏi về pháp luật lao động hoặc bảo hiểm xã hội...")
 query = user_input or st.session_state.pending_query
 
 if query:
@@ -111,14 +111,6 @@ if query:
     with st.chat_message("assistant"):
         with st.spinner("Đang tìm kiếm tài liệu và tổng hợp câu trả lời..."):
             try:
-                # TODO (Học viên): Tích hợp hàm sinh câu trả lời từ Task 10
-                # Ví dụ:
-                # from src.task10_generation import generate_with_citation
-                # response = generate_with_citation(query, top_k=top_k)
-                # answer = response["answer"]
-                # sources = response.get("sources", [])
-
-                # Tạm thời mockup để test UI:
                 from src.task10_generation import generate_with_citation
                 response = generate_with_citation(query, top_k=top_k)
                 answer = response.get("answer", "Chưa thể trả lời.")

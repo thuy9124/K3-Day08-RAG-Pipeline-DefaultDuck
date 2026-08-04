@@ -190,3 +190,4 @@
 2026-08-04 10:45:16,016 | INFO | Crawl thành công 15/15 bài
 2026-08-04 10:45:16,041 | INFO | Đã ghi JSONL, CSV và 15 file JSON
 2026-08-04 10:45:16,041 | INFO | Hoàn tất: 15 bài hợp lệ
+2026-08-04 15:51:48,695 | INFO | Hoàn tất kiểm tra cache hiện có: 7 bài hợp lệ

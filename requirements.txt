@@ -8,7 +8,7 @@ numpy>=1.24.0
 crawl4ai>=0.3.0
 
 # Task 3 - Document conversion
-markitdown[pdf]>=0.1.0
+markitdown[pdf,docx]>=0.1.1
 fpdf2>=2.7.0
 
 # Task 4 - Chunking & Indexing
@@ -27,10 +27,7 @@ openai>=1.30.0
 # Group project - UI
 streamlit>=1.35.0
 
-# Group project - Evaluation
-ragas==0.1.21
-datasets>=2.14.0
-langchain-openai>=0.1.0
+# Group project - Evaluation chạy deterministic local, không cần LLM judge/RAGAS.
 
 # Testing (dung de cham diem bai ca nhan)
 pytest>=7.0.0

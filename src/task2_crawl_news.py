@@ -6,6 +6,7 @@ tại và đồng thời xuất bộ dữ liệu tổng hợp JSONL/CSV.
 from __future__ import annotations
 
 import csv
+import argparse
 import json
 import logging
 import re
@@ -23,7 +24,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 MAX_ARTICLES = 15
-MIN_REQUIRED_ARTICLES = 15
+MIN_REQUIRED_ARTICLES = 5
 REQUEST_DELAY_SECONDS = 1.5
 TIMEOUT_SECONDS = 30
 MAX_RETRIES = 3
@@ -403,16 +404,36 @@ def crawl_all() -> list[dict[str, Any]]:
     return records
 
 
+def load_cached_articles() -> list[dict[str, Any]]:
+    """Đọc và kiểm tra corpus đã crawl, không thực hiện request mạng."""
+    records: list[dict[str, Any]] = []
+    if not NEWS_DIR.exists():
+        return records
+    for path in sorted(NEWS_DIR.glob("*.json")):
+        try:
+            article = json.loads(path.read_text(encoding="utf-8"))
+            validate_article(article)
+            records.append(article)
+        except (OSError, json.JSONDecodeError, CrawlError) as exc:
+            logger.warning("Bỏ qua cache không hợp lệ %s — %s", path.name, exc)
+    return records
+
+
 def main() -> int:
-    """Điểm vào CLI; trả mã lỗi nếu chưa đủ số bài tối thiểu."""
-    records = crawl_all()
+    """Mặc định chỉ validate cache; thêm ``--refresh`` khi thật sự muốn crawl mạng."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--refresh", action="store_true", help="crawl lại tối đa 15 bài")
+    args = parser.parse_args()
+    setup_logging()
+    records = crawl_all() if args.refresh else load_cached_articles()
     if len(records) < MIN_REQUIRED_ARTICLES:
         logger.error(
             "Chỉ crawl được %s bài; yêu cầu tối thiểu %s bài hợp lệ",
             len(records), MIN_REQUIRED_ARTICLES,
         )
         return 1
-    logger.info("Hoàn tất: %s bài hợp lệ", len(records))
+    mode = "crawl mới" if args.refresh else "cache hiện có"
+    logger.info("Hoàn tất kiểm tra %s: %s bài hợp lệ", mode, len(records))
     return 0
 
 

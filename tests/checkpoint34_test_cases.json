@@ -1,0 +1,32 @@
+[
+  {
+    "id": "thu_viec",
+    "query": "Lương thử việc tối thiểu bằng bao nhiêu phần trăm?",
+    "expected_terms": ["thử việc"],
+    "min_results": 1
+  },
+  {
+    "id": "lam_them_gio",
+    "query": "Người lao động làm thêm giờ được trả lương thế nào?",
+    "expected_terms": ["làm thêm", "tiền lương"],
+    "min_results": 1
+  },
+  {
+    "id": "nghi_phep",
+    "query": "Người lao động được nghỉ phép năm bao nhiêu ngày?",
+    "expected_terms": ["nghỉ", "phép năm"],
+    "min_results": 1
+  },
+  {
+    "id": "nghi_viec",
+    "query": "Khi nghỉ việc người lao động được nhận những khoản tiền nào?",
+    "expected_terms": ["nghỉ việc", "người lao động"],
+    "min_results": 1
+  },
+  {
+    "id": "hop_dong",
+    "query": "Hợp đồng lao động phải có những nội dung gì?",
+    "expected_terms": ["hợp đồng lao động"],
+    "min_results": 1
+  }
+]

@@ -50,5 +50,21 @@ def setup_directory():
 # thành PDF đơn giản bằng thư viện fpdf2 (đã có trong requirements.txt).
 
 
-if __name__ == "__main__":
+def validate_collection(minimum: int = 3) -> list[Path]:
+    """Kiểm kê nguồn đã tải thủ công; tuyệt đối không tự tải tài liệu."""
     setup_directory()
+    files = sorted(
+        path for path in DATA_DIR.iterdir()
+        if path.is_file() and path.suffix.lower() in {".pdf", ".doc", ".docx"}
+    )
+    valid = [path for path in files if path.stat().st_size > 1024]
+    if len(valid) < minimum:
+        raise RuntimeError(f"Cần tối thiểu {minimum} tài liệu hợp lệ, hiện có {len(valid)}")
+    print(f"✓ Đã có {len(valid)} tài liệu pháp lý hợp lệ:")
+    for path in valid:
+        print(f"  - {path.name} ({path.stat().st_size:,} bytes)")
+    return valid
+
+
+if __name__ == "__main__":
+    validate_collection()
